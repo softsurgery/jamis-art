@@ -1,7 +1,9 @@
 <?php
-
+session_start();
 // require_once "connect.php";
 require_once __DIR__ . "/controllers/AuthController.php";
+
+$isLoggedIn = isset($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,10 +40,17 @@ require_once __DIR__ . "/controllers/AuthController.php";
                 <a href="#" class="hover:text-red-500 transition">Events</a>
             </div>
 
-            <button class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition"
-                onclick="redirectToSignIn()">
-                Join Now
-            </button>
+            <?php if ($isLoggedIn): ?>
+                <a href="views/auth/sign-out.php"
+                    class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition">
+                    Sign Out
+                </a>
+            <?php else: ?>
+                <button class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition"
+                    onclick="window.location.href='views/auth/sign-in.php'">
+                    Join Now
+                </button>
+            <?php endif; ?>
 
         </div>
     </nav>

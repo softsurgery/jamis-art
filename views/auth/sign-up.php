@@ -1,3 +1,30 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../controllers/AuthController.php';
+require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+
+$artTypeController = new ArtTypeController();
+$artTypes = $artTypeController->getAll();
+
+$error = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $firstName = $_POST['firstName'] ?? '';
+    $lastName = $_POST['lastName'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirmPassword'] ?? '';
+    $artTypeId = (int) ($_POST['artType'] ?? 1);
+
+    if ($password !== $confirmPassword) {
+        $error = "Passwords do not match.";
+    } else {
+        $auth = new AuthController();
+        $auth->register($firstName, $lastName, $email, $password, $artTypeId);
+        header('Location: sign-in.php');
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,7 +55,13 @@
                 CREATE <span class="gradient-text">ACCOUNT</span>
             </h2>
 
-            <form class="space-y-5">
+            <?php if ($error): ?>
+                <div class="bg-red-500/20 border border-red-500 text-red-100 px-4 py-3 rounded-xl mb-6">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <form class="space-y-5" action="" method="POST">
 
                 <div class="flex flex-row gap-4">
                     <div>
@@ -36,7 +69,7 @@
                             First Name
                         </label>
 
-                        <input type="text" placeholder="Your first name"
+                        <input type="text" name="firstName" placeholder="Your first name" required
                             class="input-style w-full rounded-2xl px-5 py-4" />
                     </div>
 
@@ -45,7 +78,7 @@
                             Last Name
                         </label>
 
-                        <input type="text" placeholder="Your last name"
+                        <input type="text" name="lastName" placeholder="Your last name" required
                             class="input-style w-full rounded-2xl px-5 py-4" />
                     </div>
                 </div>
@@ -56,7 +89,7 @@
                         Email Address
                     </label>
 
-                    <input type="email" placeholder="you@example.com"
+                    <input type="email" name="email" placeholder="you@example.com" required
                         class="input-style w-full rounded-2xl px-5 py-4" />
                 </div>
 
@@ -65,7 +98,8 @@
                         Password
                     </label>
 
-                    <input type="password" placeholder="••••••••" class="input-style w-full rounded-2xl px-5 py-4" />
+                    <input type="password" name="password" placeholder="••••••••" required
+                        class="input-style w-full rounded-2xl px-5 py-4" />
                 </div>
 
                 <div>
@@ -73,7 +107,8 @@
                         Confirm Password
                     </label>
 
-                    <input type="password" placeholder="••••••••" class="input-style w-full rounded-2xl px-5 py-4" />
+                    <input type="password" name="confirmPassword" placeholder="••••••••" required
+                        class="input-style w-full rounded-2xl px-5 py-4" />
                 </div>
 
                 <div>
@@ -81,15 +116,17 @@
                         Choose Your Art
                     </label>
 
-                    <select class="input-style w-full rounded-2xl px-5 py-4">
-                        <option class="bg-black">Painting</option>
-                        <option class="bg-black">Dancing</option>
-                        <option class="bg-black">Music</option>
-                        <option class="bg-black">Acting</option>
+                    <select name="artType" class="input-style w-full rounded-2xl px-5 py-4">
+                        <?php foreach ($artTypes as $artType): ?>
+                            <option value="<?= $artType['id'] ?>" class="bg-black">
+                                <?= htmlspecialchars($artType['label']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
-                <button class="w-full bg-red-600 hover:bg-red-700 transition py-4 rounded-2xl font-semibold text-lg">
+                <button type="submit"
+                    class="w-full bg-red-600 hover:bg-red-700 transition py-4 rounded-2xl font-semibold text-lg">
                     Create Account
                 </button>
 

@@ -1,3 +1,24 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../controllers/AuthController.php';
+
+$error = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    $auth = new AuthController();
+    $user = $auth->login($email, $password);
+
+    if ($user) {
+        $_SESSION['user_id'] = $user->getId();
+        header('Location: ../../index.php');
+        exit;
+    } else {
+        $error = "Invalid email or password.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -63,14 +84,20 @@
                 SIGN <span class="gradient-text">IN</span>
             </h2>
 
-            <form class="space-y-6">
+            <?php if ($error): ?>
+                <div class="bg-red-500/20 border border-red-500 text-red-100 px-4 py-3 rounded-xl mb-6">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <form class="space-y-6" action="" method="POST">
 
                 <div>
                     <label class="text-sm text-gray-300 mb-2 block">
                         Email Address
                     </label>
 
-                    <input type="email" placeholder="you@example.com"
+                    <input type="email" name="email" placeholder="you@example.com" required
                         class="input-style w-full rounded-2xl px-5 py-4" />
                 </div>
 
@@ -79,7 +106,8 @@
                         Password
                     </label>
 
-                    <input type="password" placeholder="••••••••" class="input-style w-full rounded-2xl px-5 py-4" />
+                    <input type="password" name="password" placeholder="••••••••" required
+                        class="input-style w-full rounded-2xl px-5 py-4" />
                 </div>
 
                 <div class="flex items-center justify-between text-sm">
