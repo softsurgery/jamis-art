@@ -35,9 +35,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
             <div class="hidden md:flex items-center gap-10 text-sm uppercase tracking-widest">
                 <a href="#" class="hover:text-red-500 transition">Home</a>
-                <a href="#" class="hover:text-red-500 transition">Discover</a>
-                <a href="#" class="hover:text-red-500 transition">Community</a>
-                <a href="#" class="hover:text-red-500 transition">Events</a>
+                <a href="#" class="hover:text-red-500 transition">Gallery</a>
             </div>
 
             <?php if ($isLoggedIn): ?>
@@ -94,7 +92,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
                 <div class="absolute -top-10 -left-10 w-40 h-40 bg-red-600 rounded-full blur-[120px] opacity-50"></div>
 
-                <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1200&auto=format&fit=crop"
+                <img src="assets/img/cover.avif" alt="Hero Image"
                     class="rounded-[40px] shadow-2xl border border-white/10" />
 
             </div>

@@ -24,7 +24,7 @@ body {
 .hero-bg {
   background:
     linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3)),
-    url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1600&auto=format&fit=crop");
+    url("/jamis-art/assets/img/cover.avif");
   background-size: cover;
   background-position: center;
 }
@@ -63,7 +63,7 @@ body {
 .bg-art {
   background:
     linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)),
-    url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1600&auto=format&fit=crop");
+    url("/jamis-art/assets/img/cover.avif");
   background-size: cover;
   background-position: center;
 }
