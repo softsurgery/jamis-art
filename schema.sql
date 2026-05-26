@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2026 at 09:29 PM
+-- Generation Time: May 26, 2026 at 11:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,18 +29,19 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `art-type` (
   `id` int(11) NOT NULL,
-  `label` varchar(50) NOT NULL
+  `label` varchar(50) NOT NULL,
+  `colorValue` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `art-type`
 --
 
-INSERT INTO `art-type` (`id`, `label`) VALUES
-(1, 'Painting'),
-(2, 'Music'),
-(3, 'Dance'),
-(4, 'Acting');
+INSERT INTO `art-type` (`id`, `label`, `colorValue`) VALUES
+(1, 'Painting', '#5B7E3C'),
+(2, 'Music', '#FFD65A'),
+(3, 'Dance', '#FF9D23'),
+(4, 'Acting', '#EA5252');
 
 -- --------------------------------------------------------
 
