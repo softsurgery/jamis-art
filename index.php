@@ -11,7 +11,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jemis Art</title>
+    <title>JemisArt - Welcome</title>
     <link rel="stylesheet" href="assets/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
@@ -35,7 +35,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
             <div class="hidden md:flex items-center gap-10 text-sm uppercase tracking-widest">
                 <a href="#" class="hover:text-red-500 transition">Home</a>
-                <a href="#" class="hover:text-red-500 transition">Gallery</a>
+                <a href="views/landing/gallery.php" class="hover:text-red-500 transition">Gallery</a>
             </div>
 
             <?php if ($isLoggedIn): ?>

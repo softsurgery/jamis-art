@@ -21,12 +21,13 @@ class ArtTypeController
     public function save($artType)
     {
         global $pdo;
-        $sql = "INSERT INTO `art-type` (label)
-                VALUES (:label)";
+        $sql = "INSERT INTO `art-type` (label,colorValue)
+                VALUES (:label, :colorValue)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
-                ':label' => $artType->getLabel()
+                ':label' => $artType->getLabel(),
+                ':colorValue' => $artType->getColorValue()
             ]);
         } catch (Exception $e) {
             die("Erreur lors de l'enregistrement : " . $e->getMessage());
@@ -51,13 +52,15 @@ class ArtTypeController
     {
         global $pdo;
         $sql = "UPDATE `art-type` 
-                SET label = :label
+                SET label = :label,
+                colorValue = :colorValue
                 WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':id' => $id,
-                ':label' => $artType->getLabel()
+                ':label' => $artType->getLabel(),
+                ':colorValue' => $artType->getColorValue()
             ]);
         } catch (Exception $e) {
             die("Erreur lors de la mise à jour : " . $e->getMessage());
@@ -76,7 +79,8 @@ class ArtTypeController
             if ($data) {
                 return new ArtType(
                     $data['id'],
-                    $data['label']
+                    $data['label'],
+                    $data['colorValue'],
                 );
             }
             return null;
