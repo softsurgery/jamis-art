@@ -45,7 +45,7 @@ $artTypes = $artTypeController->getAll();
             </div>
 
             <?php if ($isLoggedIn): ?>
-                <a href="views/auth/sign-out.php"
+                <a href="../auth/sign-out.php"
                     class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition">
                     Sign Out
                 </a>
