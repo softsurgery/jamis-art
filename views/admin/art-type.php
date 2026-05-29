@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management</title>
+    <title>Art Type Management</title>
     <script src="../../assets/js/tailwind.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,18 +32,18 @@
             <div class="overflow-auto container mx-auto p-8 bg-gray-50 flex-1">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-200">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
-                        <p class="mt-1 text-sm text-gray-500">Manage all registered users, roles, and status.</p>
+                        <h1 class="text-2xl font-bold text-gray-900">Art Type Management</h1>
+                        <p class="mt-1 text-sm text-gray-500">Manage all registered art types and their details.</p>
                     </div>
                     <button
                         class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300">
-                        + Add New User
+                        + Add New Art Type
                     </button>
                 </div>
 
                 <?php
-                require_once __DIR__ . "/../../components/user-table.php";
-                echo userTableLayout();
+                // require_once __DIR__ . "/../../components/art-type-table.php";
+                // echo artTypeTableLayout();
                 ?>
             </div>
 

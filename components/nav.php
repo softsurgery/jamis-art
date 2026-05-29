@@ -1,26 +1,30 @@
 <?php
 
-function navLayout()
+function navLayout($path = "")
 {
     $items = array(
         [
             "icon" => "house",
             "label" => "Dashboard",
+            "route" => "views/admin/dashboard.php",
             "active" => false
         ],
         [
             "icon" => "users",
             "label" => "Users",
+            "route" => "views/admin/users.php",
             "active" => true
         ],
         [
             "icon" => "palette",
             "label" => "Art Types",
+            "route" => "views/admin/art-type.php",
             "active" => false
         ],
         [
             "icon" => "settings",
             "label" => "Settings",
+            "route" => "views/admin/settings.php",
             "active" => false
         ]
     );
@@ -30,7 +34,7 @@ function navLayout()
         $activeClass = $item["active"] ? "bg-gray-100 text-indigo-600" : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600";
         $navItems .= '
         <li>
-            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 transition ' . $activeClass . '">
+            <a href="' . $path . $item["route"] . '" class="flex items-center gap-3 rounded-lg px-3 py-2 transition ' . $activeClass . '">
                 <i data-lucide="' . $item["icon"] . '"></i>
                 <span class="font-medium text-sm">' . $item["label"] . '</span>
             </a>
