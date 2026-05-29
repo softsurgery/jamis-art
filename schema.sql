@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 29, 2026 at 07:55 PM
+-- Generation Time: May 29, 2026 at 09:44 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -51,10 +51,20 @@ INSERT INTO `art-type` (`id`, `label`, `colorValue`) VALUES
 
 CREATE TABLE `location` (
   `id` int(11) NOT NULL,
-  `latitude` decimal(10,0) NOT NULL,
-  `longitude` decimal(10,0) NOT NULL,
+  `latitude` decimal(10,8) NOT NULL,
+  `longitude` decimal(10,8) NOT NULL,
+  `label` varchar(100) NOT NULL,
+  `description` text NOT NULL,
   `artTypeId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `location`
+--
+
+INSERT INTO `location` (`id`, `latitude`, `longitude`, `label`, `description`, `artTypeId`) VALUES
+(2, 36.81796900, 10.16492800, 'Painting House', 'A charming artistic space filled with creativity and color, the Painting House showcases inspiring artworks and vibrant visual expressions. Visitors can explore unique paintings, discover local artistic talent, and enjoy an atmosphere where imagination comes to life through every brushstroke.', 1),
+(4, 36.81706900, 10.16492800, 'Music Box X', 'A dynamic destination where rhythm, creativity, and sound come together. Music Box X offers an immersive musical experience featuring live performances, innovative sound art, and a vibrant atmosphere for music lovers and artists alike. Whether you’re discovering new talents or enjoying unforgettable melodies, this space celebrates the power of music in all its forms.', 2);
 
 -- --------------------------------------------------------
 
@@ -104,13 +114,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `art-type`
 --
 ALTER TABLE `art-type`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `user`
