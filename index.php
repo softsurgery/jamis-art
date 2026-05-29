@@ -24,33 +24,10 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
     <!-- NAVBAR -->
     <nav class="fixed top-0 left-0 w-full z-50 glass">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-red-600"></div>
-                <h1 class="text-2xl title-font tracking-wider">
-                    ART<span class="gradient-text">VERSE</span>
-                </h1>
-            </div>
-
-            <div class="hidden md:flex items-center gap-10 text-sm uppercase tracking-widest">
-                <a href="#" class="hover:text-red-500 transition">Home</a>
-                <a href="views/landing/gallery.php" class="hover:text-red-500 transition">Gallery</a>
-            </div>
-
-            <?php if ($isLoggedIn): ?>
-                <a href="views/auth/sign-out.php"
-                    class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition">
-                    Sign Out
-                </a>
-            <?php else: ?>
-                <button class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition"
-                    onclick="window.location.href='views/auth/sign-in.php'">
-                    Join Now
-                </button>
-            <?php endif; ?>
-
-        </div>
+        <?php
+        require_once __DIR__ . '/components/landing/nav.php';
+        echo landingNavLayout('home', $isLoggedIn, '.');
+        ?>
     </nav>
 
     <!-- HERO SECTION -->

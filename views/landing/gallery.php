@@ -21,7 +21,7 @@ $artTypes = $artTypeController->getAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JemisArt - Gallery</title>
     <link rel="stylesheet" href="../../assets/styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="../../assets/js/tailwind.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -30,33 +30,10 @@ $artTypes = $artTypeController->getAll();
 
 <body class="text-white">
     <nav class="fixed top-0 left-0 w-full z-50 glass">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-red-600"></div>
-                <h1 class="text-2xl title-font tracking-wider">
-                    ART<span class="gradient-text">VERSE</span>
-                </h1>
-            </div>
-
-            <div class="hidden md:flex items-center gap-10 text-sm uppercase tracking-widest">
-                <a href="../../" class="hover:text-red-500 transition">Home</a>
-                <a href="views/landing/gallery.php" class="hover:text-red-500 transition">Gallery</a>
-            </div>
-
-            <?php if ($isLoggedIn): ?>
-                <a href="../auth/sign-out.php"
-                    class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition">
-                    Sign Out
-                </a>
-            <?php else: ?>
-                <button class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-full font-semibold transition"
-                    onclick="window.location.href='views/auth/sign-in.php'">
-                    Join Now
-                </button>
-            <?php endif; ?>
-
-        </div>
+        <?php
+        require_once __DIR__ . '/../../components/landing/nav.php';
+        echo landingNavLayout('gallery', $isLoggedIn, '../../');
+        ?>
     </nav>
     <!-- HERO SECTION -->
     <section class="h-screen w-full flex flex-col md:flex-row overflow-hidden">
@@ -83,10 +60,16 @@ $artTypes = $artTypeController->getAll();
                         <p class="text-gray-400 text-xs md:text-sm mb-4 md:mb-6 hidden sm:block">Experience
                             <?= htmlspecialchars(strtolower($artType['label'])) ?> art.
                         </p>
-                        <a href="#"
-                            class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
-                            View Collection
-                        </a>
+                        <div class="flex flex-col gap-2">
+                            <a href="#"
+                                class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
+                                View Collection
+                            </a>
+                            <a href="./map.php?type=<?= urlencode($artType['id']) ?>"
+                                class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
+                                Discover Locations
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
