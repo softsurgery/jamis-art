@@ -17,17 +17,32 @@ class LocationController
         }
     }
 
+    public function getAllByArtType($artTypeId)
+    {
+        global $pdo;
+        $sql = "SELECT * FROM `location` WHERE artTypeId = :artTypeId";
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute([':artTypeId' => $artTypeId]);
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            die("Erreur : " . $e->getMessage());
+        }
+    }
+
     // ? Add new location
     public function save($location)
     {
         global $pdo;
-        $sql = "INSERT INTO `location` (latitude, longitude, artTypeId)
-                VALUES (:latitude, :longitude, :artTypeId)";
+        $sql = "INSERT INTO `location` (latitude, longitude, label, description, artTypeId)
+                VALUES (:latitude, :longitude, :label, :description, :artTypeId)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':latitude' => $location->getLatitude(),
                 ':longitude' => $location->getLongitude(),
+                ':label' => $location->getLabel(),
+                ':description' => $location->getDescription(),
                 ':artTypeId' => $location->getArtTypeId()
             ]);
         } catch (Exception $e) {
@@ -55,6 +70,8 @@ class LocationController
         $sql = "UPDATE `location` 
                 SET latitude = :latitude,
                 longitude = :longitude,
+                label = :label,
+                description = :description,
                 artTypeId = :artTypeId
                 WHERE id = :id";
         try {
@@ -63,10 +80,12 @@ class LocationController
                 ':id' => $id,
                 ':latitude' => $location->getLatitude(),
                 ':longitude' => $location->getLongitude(),
+                ':label' => $location->getLabel(),
+                ':description' => $location->getDescription(),
                 ':artTypeId' => $location->getArtTypeId()
             ]);
         } catch (Exception $e) {
-            die("Erreur lors de la mise à jour : " . $e->getMessage());
+            die("Erreur lors de la mise Ã  jour : " . $e->getMessage());
         }
     }
 
@@ -84,12 +103,14 @@ class LocationController
                     $data['id'],
                     $data['latitude'],
                     $data['longitude'],
+                    $data['label'],
+                    $data['description'],
                     $data['artTypeId']
                 );
             }
             return null;
         } catch (Exception $e) {
-            die("Erreur lors de la récupération : " . $e->getMessage());
+            die("Erreur lors de la rcupration : " . $e->getMessage());
         }
     }
 }

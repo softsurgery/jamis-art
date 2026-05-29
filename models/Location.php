@@ -5,13 +5,17 @@ class Location
     private $id;
     private $latitude;
     private $longitude;
+    private $label;
+    private $description;
     private $artTypeId;
 
-    public function __construct($id, $latitude, $longitude, $artTypeId)
+    public function __construct($id, $latitude, $longitude, $label, $description, $artTypeId)
     {
         $this->id = $id;
         $this->latitude = $latitude;
         $this->longitude = $longitude;
+        $this->label = $label;
+        $this->description = $description;
         $this->artTypeId = $artTypeId;
     }
 
@@ -28,6 +32,16 @@ class Location
     public function getLongitude()
     {
         return $this->longitude;
+    }
+
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     public function getArtTypeId()
@@ -53,6 +67,16 @@ class Location
     public function setArtTypeId($artTypeId)
     {
         $this->artTypeId = $artTypeId;
+    }
+
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 }
 
