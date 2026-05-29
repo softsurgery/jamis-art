@@ -1,6 +1,6 @@
 <?php
 
-function landingNavLayout($name, $isLoggedIn = false, $path = "")
+function landingNavLayout($name, $isLoggedIn = false, $path = "", $dark = true)
 {
     $items = array(
         [
@@ -39,10 +39,8 @@ function landingNavLayout($name, $isLoggedIn = false, $path = "")
     return " 
     <div class='max-w-7xl mx-auto px-6 py-4 flex items-center justify-between'>
         <div class='flex items-center gap-3'>
-            <div class='w-10 h-10 rounded-full bg-red-600'></div>
-                <h1 class='text-2xl title-font tracking-wider'>
-                    ART<span class='gradient-text'>VERSE</span>
-                </h1>
+            <div class='w-10 h-10 rounded-full'></div>
+                <img src='$path/" . ($dark ? 'assets/img/jemis-art-dark.png' : 'assets/img/jemis-art.png') . "' alt='Logo' class='w-32 h-auto'>
             </div>
 
             <div class='hidden md:flex items-center gap-10 text-sm uppercase tracking-widest'>
