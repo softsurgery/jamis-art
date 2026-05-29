@@ -24,7 +24,7 @@ if (isset($_GET['type'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map</title>
+    <title>JemisArt - Map</title>
     <!-- Include Leaflet CSS -->
     <script src="../../assets/js/tailwind.js"></script>
     <script src="../../assets/styles.js"></script>
