@@ -22,6 +22,12 @@ function navLayout($name, $path = "")
             "route" => "views/admin/art-type.php",
         ],
         [
+            "icon" => "map-pin",
+            "name" => "locations",
+            "label" => "Locations",
+            "route" => "views/admin/locations.php",
+        ],
+        [
             "icon" => "settings",
             "name" => "settings",
             "label" => "Settings",
