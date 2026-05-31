@@ -60,7 +60,7 @@ if (isset($_GET['type'])) {
     <nav class="fixed top-0 left-0 w-full z-50 glass">
         <?php
         require_once __DIR__ . '/../../components/landing/nav.php';
-        echo landingNavLayout('map', $isLoggedIn, '../../', false);
+        echo landingNavLayout('map', $isLoggedIn, './../..', false);
         ?>
     </nav>
     <?php if (isset($artTypeId) && !empty($locations)): ?>

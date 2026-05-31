@@ -6,13 +6,18 @@ function landingNavLayout($name, $isLoggedIn = false, $path = "", $dark = true)
         [
             'label' => 'Home',
             'name' => 'home',
-            'route' => ''
+            'route' => '/'
         ],
         [
             'label' => 'Gallery',
             'name' => 'gallery',
             'route' => '/views/landing/gallery.php'
         ],
+        [
+            'label' => 'Maps',
+            'name' => 'maps',
+            'route' => '/views/landing/map.php'
+        ]
     );
 
     $navItems = '';
