@@ -21,8 +21,8 @@ class UserController
     public function save($user)
     {
         global $pdo;
-        $sql = "INSERT INTO user (firstName, lastName, email, passwordHash, artTypeId)
-                VALUES (:firstName, :lastName, :email, :passwordHash, :artTypeId)";
+        $sql = "INSERT INTO user (firstName, lastName, email, passwordHash, active, artTypeId)
+                VALUES (:firstName, :lastName, :email, :passwordHash, :active, :artTypeId)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
@@ -30,6 +30,7 @@ class UserController
                 ':lastName' => $user->getLastName(),
                 ':email' => $user->getEmail(),
                 ':passwordHash' => $user->getPasswordHash(),
+                ":active" => $user->getActive(),
                 ':artTypeId' => $user->getArtTypeId()
             ]);
         } catch (Exception $e) {
@@ -55,7 +56,7 @@ class UserController
     {
         global $pdo;
         $sql = "UPDATE user 
-                SET firstName = :firstName, lastName = :lastName, email = :email, artTypeId = :artTypeId
+                SET firstName = :firstName, lastName = :lastName, email = :email, active = :active, artTypeId = :artTypeId
                 WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
@@ -64,6 +65,7 @@ class UserController
                 ':firstName' => $user->getFirstName(),
                 ':lastName' => $user->getLastName(),
                 ':email' => $user->getEmail(),
+                ':active' => $user->getActive(),
                 ':artTypeId' => $user->getArtTypeId()
             ]);
         } catch (Exception $e) {
@@ -87,6 +89,7 @@ class UserController
                     $data['lastName'],
                     $data['email'],
                     $data['passwordHash'],
+                    $data['active'],
                     $data['artTypeId']
                 );
             }
@@ -112,6 +115,7 @@ class UserController
                     $data['lastName'],
                     $data['email'],
                     $data['passwordHash'],
+                    $data['active'],
                     $data['artTypeId']
                 );
             }

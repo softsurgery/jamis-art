@@ -14,13 +14,16 @@ class AuthController
     public function register($firstName, $lastName, $email, $password, $artTypeId)
     {
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-        $user = new User(null, $firstName, $lastName, $email, $passwordHash, $artTypeId);
+        $user = new User(null, $firstName, $lastName, $email, $passwordHash, 1, $artTypeId);
         $this->userController->save($user);
     }
 
     public function login($email, $password)
     {
         $user = $this->userController->getByEmail($email);
+        if (!$user->getActive()) {
+            return null;
+        }
         if ($user && password_verify($password, $user->getPasswordHash())) {
             return $user;
         }

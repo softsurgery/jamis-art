@@ -10,12 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'];
 
         if ($action === 'create') {
-            $user = new User(null, $_POST['firstName'], $_POST['lastName'], $_POST['email'], password_hash($_POST['password'], PASSWORD_DEFAULT), $_POST['artTypeId']);
+            $user = new User(null, $_POST['firstName'], $_POST['lastName'], $_POST['email'], password_hash($_POST['password'], PASSWORD_DEFAULT), $_POST['active'], $_POST['artTypeId']);
             $controller->save($user);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
         } elseif ($action === 'update') {
-            $user = new User($_POST['id'], $_POST['firstName'], $_POST['lastName'], $_POST['email'], '', $_POST['artTypeId']);
+            $user = new User($_POST['id'], $_POST['firstName'], $_POST['lastName'], $_POST['email'], '', $_POST['active'], $_POST['artTypeId']);
             $controller->update($_POST['id'], $user);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
@@ -109,8 +109,13 @@ $artTypes = $artTypeController->getAll();
                                         ?>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <span
-                                            class='inline-flex items-center justify-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700'>Active</span>
+                                        <?php if ($user['active'] == 1): ?>
+                                            <span
+                                                class='inline-flex items-center justify-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700'>Active</span>
+                                        <?php else: ?>
+                                            <span
+                                                class='inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700'>Inactive</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="inline-block relative">
@@ -122,7 +127,7 @@ $artTypes = $artTypeController->getAll();
                                             <div id="dropdown-<?= $user['id'] ?>"
                                                 class="hidden absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-left overflow-hidden">
                                                 <button
-                                                    onclick="openSheet('update', <?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['firstName'])) ?>', '<?= htmlspecialchars(addslashes($user['lastName'])) ?>', '<?= htmlspecialchars(addslashes($user['email'])) ?>', '<?= htmlspecialchars(addslashes($user['artTypeId'])) ?>')"
+                                                    onclick="openSheet('update', <?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['firstName'])) ?>', '<?= htmlspecialchars(addslashes($user['lastName'])) ?>', '<?= htmlspecialchars(addslashes($user['email'])) ?>', '<?= htmlspecialchars(addslashes($user['active'])) ?>', '<?= htmlspecialchars(addslashes($user['artTypeId'])) ?>')"
                                                     class="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2 transition">
                                                     <i data-lucide="edit" class="w-4 h-4 text-gray-400"></i> Edit
                                                 </button>
@@ -130,6 +135,7 @@ $artTypes = $artTypeController->getAll();
                                                     class="w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left flex items-center gap-2 transition">
                                                     <i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i> Delete
                                                 </button>
+
                                             </div>
                                         </div>
                                     </td>
@@ -191,6 +197,14 @@ $artTypes = $artTypeController->getAll();
                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+                    <select name="active" id="form-active" required
+                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Role (Art Type)</label>
                     <select name="artTypeId" id="form-artTypeId" required
@@ -256,12 +270,13 @@ $artTypes = $artTypeController->getAll();
         const sheet = document.getElementById('side-sheet');
         const sheetContent = document.getElementById('sheet-content');
 
-        function openSheet(action, id = '', firstName = '', lastName = '', email = '', artTypeId = '') {
+        function openSheet(action, id = '', firstName = '', lastName = '', email = '', active = '', artTypeId = '') {
             document.getElementById('form-action').value = action;
             document.getElementById('form-id').value = id;
             document.getElementById('form-firstName').value = firstName;
             document.getElementById('form-lastName').value = lastName;
             document.getElementById('form-email').value = email;
+            document.getElementById('form-active').value = active;
 
             if (action === 'create') {
                 document.getElementById('form-password').setAttribute('required', 'required');
