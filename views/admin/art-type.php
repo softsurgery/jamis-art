@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+require_once __DIR__ . '/../../controllers/UploadController.php';
 $controller = new ArtTypeController();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -7,12 +8,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'];
 
         if ($action === 'create') {
-            $artType = new ArtType(null, $_POST['label'], $_POST['colorValue']);
+            $uploadId = null;
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $mime = mime_content_type($_FILES['image']['tmp_name']);
+                if (strpos($mime, 'image/') === 0) {
+                    $upload = UploadController::uploadFile($_FILES['image']);
+                    $uploadId = $upload->getId();
+                }
+            }
+            $artType = new ArtType(null, $_POST['label'], $_POST['colorValue'], $uploadId);
             $controller->save($artType);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
         } elseif ($action === 'update') {
-            $artType = new ArtType($_POST['id'], $_POST['label'], $_POST['colorValue']);
+            $uploadId = null;
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $mime = mime_content_type($_FILES['image']['tmp_name']);
+                if (strpos($mime, 'image/') === 0) {
+                    $upload = UploadController::uploadFile($_FILES['image']);
+                    $uploadId = $upload->getId();
+                }
+            } else {
+                $existing = $controller->getById($_POST['id']);
+                if ($existing)
+                    $uploadId = $existing->getUploadId();
+            }
+            $artType = new ArtType($_POST['id'], $_POST['label'], $_POST['colorValue'], $uploadId);
             $controller->update($_POST['id'], $artType);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
@@ -75,6 +96,7 @@ $artTypes = $controller->getAll();
                         <thead class="bg-gray-50 border-b border-gray-200 text-gray-900">
                             <tr>
                                 <th class="px-6 py-4 font-medium">ID</th>
+                                <th class="px-6 py-4 font-medium">Image</th>
                                 <th class="px-6 py-4 font-medium">Label</th>
                                 <th class="px-6 py-4 font-medium">Color</th>
                                 <th class="px-6 py-4 font-medium text-right">Actions</th>
@@ -82,8 +104,21 @@ $artTypes = $controller->getAll();
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             <?php foreach ($artTypes as $type): ?>
+                                <?php $upload = $type['uploadId'] ? UploadController::getFileByIdOrSlug($type['uploadId']) : null; ?>
+                                <?php $imageUrl = $upload ? '../../' . $upload->getRelativePath() : ''; ?>
                                 <tr class="hover:bg-gray-50 transition relative">
                                     <td class="px-6 py-4"><?= htmlspecialchars($type['id']) ?></td>
+                                    <td class="px-6 py-4">
+                                        <?php if ($imageUrl): ?>
+                                            <img src="<?= htmlspecialchars($imageUrl) ?>" alt="Art Type Image"
+                                                class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-sm">
+                                        <?php else: ?>
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200 shadow-sm">
+                                                <i data-lucide="image" class="w-4 h-4 text-gray-400"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="px-6 py-4 font-medium text-gray-900"><?= htmlspecialchars($type['label']) ?>
                                     </td>
                                     <td class="px-6 py-4">
@@ -104,7 +139,7 @@ $artTypes = $controller->getAll();
                                             <div id="dropdown-<?= $type['id'] ?>"
                                                 class="hidden absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-left overflow-hidden">
                                                 <button
-                                                    onclick="openSheet('update', <?= $type['id'] ?>, '<?= htmlspecialchars(addslashes($type['label'])) ?>', '<?= htmlspecialchars(addslashes($type['colorValue'])) ?>')"
+                                                    onclick="openSheet('update', <?= $type['id'] ?>, '<?= htmlspecialchars(addslashes($type['label'])) ?>', '<?= htmlspecialchars(addslashes($type['colorValue'])) ?>', '<?= htmlspecialchars(addslashes($imageUrl)) ?>')"
                                                     class="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2 transition">
                                                     <i data-lucide="edit" class="w-4 h-4 text-gray-400"></i> Edit
                                                 </button>
@@ -146,13 +181,21 @@ $artTypes = $controller->getAll();
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <form method="POST" id="sheet-form" class="flex flex-col gap-5 flex-1">
+            <form method="POST" id="sheet-form" enctype="multipart/form-data" class="flex flex-col gap-5 flex-1">
                 <input type="hidden" name="action" id="form-action" value="create">
                 <input type="hidden" name="id" id="form-id" value="">
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Label</label>
                     <input type="text" name="label" id="form-label" required placeholder="e.g. Painting"
+                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Image</label>
+                    <img id="form-image-preview" src="" alt="Preview"
+                        class="hidden mb-3 w-16 h-16 rounded-lg object-cover border border-gray-200 shadow-sm">
+                    <input type="file" name="image" id="form-image" accept="image/*"
                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
                 </div>
 
@@ -224,12 +267,22 @@ $artTypes = $controller->getAll();
             colorDisplay.textContent = e.target.value.toUpperCase();
         });
 
-        function openSheet(action, id = '', label = '', color = '#000000') {
+        function openSheet(action, id = '', label = '', color = '#000000', imageUrl = '') {
             document.getElementById('form-action').value = action;
             document.getElementById('form-id').value = id;
             document.getElementById('form-label').value = label;
             document.getElementById('form-color').value = color;
+            document.getElementById('form-image').value = '';
             colorDisplay.textContent = color.toUpperCase();
+
+            const imagePreview = document.getElementById('form-image-preview');
+            if (imageUrl) {
+                imagePreview.src = imageUrl;
+                imagePreview.classList.remove('hidden');
+            } else {
+                imagePreview.removeAttribute('src');
+                imagePreview.classList.add('hidden');
+            }
 
             document.getElementById('sheet-title').innerText = action === 'create' ? 'Add Art Type' : 'Edit Art Type';
 

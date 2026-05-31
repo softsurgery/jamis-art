@@ -21,13 +21,14 @@ class ArtTypeController
     public function save($artType)
     {
         global $pdo;
-        $sql = "INSERT INTO `art-type` (label,colorValue)
-                VALUES (:label, :colorValue)";
+        $sql = "INSERT INTO `art-type` (label,colorValue,uploadId)
+                VALUES (:label, :colorValue, :uploadId)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':label' => $artType->getLabel(),
-                ':colorValue' => $artType->getColorValue()
+                ':colorValue' => $artType->getColorValue(),
+                ':uploadId' => $artType->getUploadId()
             ]);
         } catch (Exception $e) {
             die("Erreur lors de l'enregistrement : " . $e->getMessage());
@@ -53,14 +54,16 @@ class ArtTypeController
         global $pdo;
         $sql = "UPDATE `art-type` 
                 SET label = :label,
-                colorValue = :colorValue
+                colorValue = :colorValue,
+                uploadId = :uploadId
                 WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':id' => $id,
                 ':label' => $artType->getLabel(),
-                ':colorValue' => $artType->getColorValue()
+                ':colorValue' => $artType->getColorValue(),
+                ':uploadId' => $artType->getUploadId()
             ]);
         } catch (Exception $e) {
             die("Erreur lors de la mise à jour : " . $e->getMessage());
@@ -81,6 +84,7 @@ class ArtTypeController
                     $data['id'],
                     $data['label'],
                     $data['colorValue'],
+                    $data['uploadId']
                 );
             }
             return null;
