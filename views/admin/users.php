@@ -17,15 +17,15 @@
         <div class="flex flex-col">
             <nav class="flex flex-col w-[15vw] h-full p-4">
                 <?php
-                require_once __DIR__ . "/../../components/nav.php";
-                echo navLayout("../../");
+                require_once __DIR__ . "/../../components/admin/nav.php";
+                echo navLayout("users", "../../");
                 ?>
             </nav>
         </div>
         <main class="flex flex-col flex-1 overflow-hidden w-full">
             <header class="p-4">
                 <?php
-                require_once __DIR__ . "/../../components/header.php";
+                require_once __DIR__ . "/../../components/admin/header.php";
                 echo headerLayout();
                 ?>
             </header>

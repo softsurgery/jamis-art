@@ -45,15 +45,15 @@ $artTypes = $controller->getAll();
         <div class="flex flex-col">
             <nav class="flex flex-col w-[15vw] h-full p-4">
                 <?php
-                require_once __DIR__ . "/../../components/nav.php";
-                echo navLayout("../../");
+                require_once __DIR__ . "/../../components/admin/nav.php";
+                echo navLayout("art-type", "../../");
                 ?>
             </nav>
         </div>
         <main class="flex flex-col flex-1 overflow-hidden w-full relative group/main">
             <header class="p-4">
                 <?php
-                require_once __DIR__ . "/../../components/header.php";
+                require_once __DIR__ . "/../../components/admin/header.php";
                 echo headerLayout();
                 ?>
             </header>
@@ -100,6 +100,7 @@ $artTypes = $controller->getAll();
                                                 class="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
                                                 <i data-lucide="more-vertical" class="w-4 h-4"></i>
                                             </button>
+                                            <!-- dropdown -->
                                             <div id="dropdown-<?= $type['id'] ?>"
                                                 class="hidden absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-left overflow-hidden">
                                                 <button

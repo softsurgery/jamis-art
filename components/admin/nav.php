@@ -1,37 +1,37 @@
 <?php
 
-function navLayout($path = "")
+function navLayout($name, $path = "")
 {
     $items = array(
         [
             "icon" => "house",
+            "name" => "dashboard",
             "label" => "Dashboard",
             "route" => "views/admin/dashboard.php",
-            "active" => false
         ],
         [
             "icon" => "users",
+            "name" => "users",
             "label" => "Users",
             "route" => "views/admin/users.php",
-            "active" => true
         ],
         [
             "icon" => "palette",
+            "name" => "art-type",
             "label" => "Art Types",
             "route" => "views/admin/art-type.php",
-            "active" => false
         ],
         [
             "icon" => "settings",
+            "name" => "settings",
             "label" => "Settings",
             "route" => "views/admin/settings.php",
-            "active" => false
         ]
     );
 
     $navItems = "";
     foreach ($items as $item) {
-        $activeClass = $item["active"] ? "bg-gray-100 text-indigo-600" : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600";
+        $activeClass = $item["name"] === $name ? "bg-gray-100 text-indigo-600" : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600";
         $navItems .= '
         <li>
             <a href="' . $path . $item["route"] . '" class="flex items-center gap-3 rounded-lg px-3 py-2 transition ' . $activeClass . '">
