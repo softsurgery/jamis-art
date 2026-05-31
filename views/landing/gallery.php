@@ -39,14 +39,22 @@ $artTypes = $artTypeController->getAll();
     <section class="h-screen w-full flex flex-col md:flex-row overflow-hidden">
 
         <?php foreach ($artTypes as $artType): ?>
+            <?php
+            $bgImage = !empty($artType['uploadPath']) ? "../../" . htmlspecialchars($artType['uploadPath']) : '';
+            $bgColor = $artType['colorValue'] ?? randomColor();
+            ?>
             <div class="group flex-1 [perspective:1000px] cursor-pointer relative h-full w-full">
                 <div
                     class="absolute inset-0 h-full w-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
                     <!-- Front Face -->
-                    <div class="absolute inset-0 h-full w-full [backface-visibility:hidden] flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-white/10"
-                        style="background-color: <?= $artType['colorValue'] ?? randomColor() ?>;">
+                    <div class="absolute inset-0 h-full w-full [backface-visibility:hidden] flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-white/10 bg-cover bg-center"
+                        style="background-image: url('<?= $bgImage ?>');">
+
+                        <div class="absolute inset-0 w-full h-full opacity-60" style="background-color: <?= $bgColor ?>;">
+                        </div>
+
                         <h2
-                            class="text-2xl md:text-3xl lg:text-4xl font-bold text-center tracking-wide drop-shadow-lg px-2">
+                            class="relative z-10 text-2xl md:text-3xl lg:text-4xl font-bold text-center tracking-wide drop-shadow-lg px-2">
                             <?= htmlspecialchars($artType['label']) ?>
                         </h2>
                     </div>

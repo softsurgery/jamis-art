@@ -8,7 +8,9 @@ class ArtTypeController
     public function getAll()
     {
         global $pdo;
-        $sql = "SELECT * FROM `art-type`";
+        $sql = "SELECT `art-type`.*, upload.relativePath as uploadPath 
+                FROM `art-type` 
+                LEFT JOIN upload ON `art-type`.uploadId = upload.id";
         try {
             $query = $pdo->query($sql);
             return $query->fetchAll(PDO::FETCH_ASSOC);
