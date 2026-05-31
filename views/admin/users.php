@@ -23,6 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $controller->delete($_POST['id']);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
+        } elseif ($action === 'update_status') {
+            $controller->updateStatus($_POST['id'], $_POST['status']);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
         }
     }
 }
@@ -126,6 +130,31 @@ $artTypes = $artTypeController->getAll();
                                             <!-- dropdown -->
                                             <div id="dropdown-<?= $user['id'] ?>"
                                                 class="hidden absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-left overflow-hidden">
+
+                                                <?php if ($user['active'] == 1): ?>
+                                                    <form method="POST" class="w-full m-0 p-0">
+                                                        <input type="hidden" name="action" value="update_status">
+                                                        <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                                        <input type="hidden" name="status" value="0">
+                                                        <button type="submit"
+                                                            class="w-full px-4 py-2.5 text-sm text-yellow-600 hover:bg-yellow-50 text-left flex items-center gap-2 transition">
+                                                            <i data-lucide="user-x" class="w-4 h-4 text-yellow-400"></i>
+                                                            Deactivate
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <form method="POST" class="w-full m-0 p-0">
+                                                        <input type="hidden" name="action" value="update_status">
+                                                        <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                                        <input type="hidden" name="status" value="1">
+                                                        <button type="submit"
+                                                            class="w-full px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 text-left flex items-center gap-2 transition">
+                                                            <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i>
+                                                            Activate
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+
                                                 <button
                                                     onclick="openSheet('update', <?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['firstName'])) ?>', '<?= htmlspecialchars(addslashes($user['lastName'])) ?>', '<?= htmlspecialchars(addslashes($user['email'])) ?>', '<?= htmlspecialchars(addslashes($user['active'])) ?>', '<?= htmlspecialchars(addslashes($user['artTypeId'])) ?>')"
                                                     class="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2 transition">

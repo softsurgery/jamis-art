@@ -51,6 +51,19 @@ class UserController
         }
     }
 
+    // ✅ Update user status
+    public function updateStatus($id, $status)
+    {
+        global $pdo;
+        $sql = "UPDATE user SET active = :status WHERE id = :id";
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute([':id' => $id, ':status' => $status]);
+        } catch (Exception $e) {
+            die("Erreur lors de la mise à jour du statut : " . $e->getMessage());
+        }
+    }
+
     // ✅ Update user info
     public function update($id, $user)
     {
