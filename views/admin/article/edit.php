@@ -36,14 +36,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article && $authorId) {
             $_POST['title'],
             $_POST['description'],
             $_POST['content'],
-            $_POST['publishedAt'],
+            $article['publishedAt'], // Keep original published date
             $authorId,
             $_POST['variant'] ?? 'Interview',
             $_POST['artTypeId']
         );
         $articleController->update($updatedArticle);
         $success = true;
-        $article = $updatedArticle;
     } catch (Exception $e) {
         $error = 'Error updating article: ' . $e->getMessage();
     }
