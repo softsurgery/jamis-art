@@ -28,6 +28,12 @@ function navLayout($name, $path = "", $dark = false)
             "route" => "views/admin/locations.php",
         ],
         [
+            "icon" => "newspaper",
+            "name" => "articles",
+            "label" => "Articles",
+            "route" => "views/admin/article.php",
+        ],
+        [
             "icon" => "settings",
             "name" => "settings",
             "label" => "Settings",
