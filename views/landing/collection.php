@@ -2,14 +2,17 @@
 session_start();
 require_once __DIR__ . "/../../controllers/AuthController.php";
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+require_once __DIR__ . '/../../controllers/ArticleController.php';
 require_once __DIR__ . '/collection/article.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
 
 $artTypeId = $_GET['type'] ?? null;
 $artTypeController = new ArtTypeController();
+$articleController = new ArticleController();
 $artType = null;
 $allArtTypes = $artTypeController->getAll();
+$articles = [];
 
 if ($artTypeId) {
     foreach ($allArtTypes as $type) {
@@ -18,6 +21,8 @@ if ($artTypeId) {
             break;
         }
     }
+    // Fetch articles for this art type
+    $articles = $articleController->getByArtTypeId($artTypeId);
 }
 ?>
 
@@ -159,48 +164,14 @@ if ($artTypeId) {
                     </div>
 
                     <?php
-                    echo renderArticle('History', $isLoggedIn);
-                    echo renderArticle('Technique', $isLoggedIn);
-                    echo renderArticle('', $isLoggedIn);
+                    if (!empty($articles)) {
+                        foreach ($articles as $article) {
+                            echo renderArticle($article, $isLoggedIn);
+                        }
+                    } else {
+                        echo '<div class="bg-gray-800/50 rounded-xl p-8 text-center border border-white/5"><p class="text-gray-400">No articles found for this collection.</p></div>';
+                    }
                     ?>
-                    <article
-                        class="bg-gray-800/50 rounded-xl p-6 hover:bg-gray-800 transition-colors border border-white/5 flex flex-col md:flex-row gap-6 items-start">
-                        <div class="w-full md:w-1/3 aspect-video bg-gray-700 rounded-lg flex-shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-semibold text-blue-500 uppercase tracking-wider">Interview</span>
-                                <?php if ($isLoggedIn): ?>
-                                    <button class="text-gray-500 hover:text-blue-500 transition-colors" title="Save to profile">
-                                        <svg class="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 384 512">
-                                            <path
-                                                d="M0 482.47V48c0-26.51 21.49-48 48-48h288c26.51 0 48 21.49 48 48v434.47c0 23.36-24.81 37.74-44.5 25.1L192 396.93 44.5 507.57C24.81 520.21 0 505.83 0 482.47z" />
-                                        </svg>
-                                    </button>
-                                <?php endif; ?>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">Voices from the <?= htmlspecialchars($artType['label']) ?>
-                                Community</h3>
-                            <p class="text-gray-400 mb-4 text-sm">A conversation with contemporary masters about their
-                                creative process and vision for the future.</p>
-                            <a href="#"
-                                class="text-red-400 hover:text-red-300 font-medium inline-flex items-center gap-1 text-sm">
-                                Read Article &rarr;
-                            </a>
-                        </div>
-                    </article>
-
-                    <article
-                        class="bg-gray-800/50 rounded-xl p-6 hover:bg-gray-800 transition-colors border border-white/5">
-                        <span class="text-xs font-semibold text-green-500 uppercase tracking-wider">Gallery Review</span>
-                        <h3 class="text-xl font-bold mt-2 mb-3">Top 10 <?= htmlspecialchars($artType['label']) ?> Pieces of
-                            the Year</h3>
-                        <p class="text-gray-400 mb-4">A definitive list curated by our experts, showcasing breathtaking new
-                            works.</p>
-                        <a href="#" class="text-red-400 hover:text-red-300 font-medium inline-flex items-center gap-1">
-                            Read Article &rarr;
-                        </a>
-                    </article>
 
                     <div class="flex justify-center mt-6">
                         <button
