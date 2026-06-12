@@ -93,7 +93,7 @@ $artTypes = $artTypeController->getAll();
                                     </td>
                                     <td class="px-6 py-4"><?= $artType ? htmlspecialchars($artType['label']) : 'N/A' ?></td>
                                     <td class="px-6 py-4 text-sm">
-                                        <?= htmlspecialchars(date('M d, Y', strtotime($article['publishedAt']))) ?>
+                                        <?= htmlspecialchars(date('M d, Y h:i A', strtotime($article['publishedAt']))) ?>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="inline-block relative">

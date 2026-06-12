@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 31, 2026 at 03:59 PM
+-- Generation Time: Jun 12, 2026 at 09:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,10 +39,27 @@ CREATE TABLE `art-type` (
 --
 
 INSERT INTO `art-type` (`id`, `label`, `colorValue`, `uploadId`) VALUES
-(1, 'Painting', '#5b7e3c', NULL),
-(2, 'Music', '#ffd65a', NULL),
-(3, 'Dance', '#ff9d23', NULL),
-(4, 'Acting', '#ea5252', NULL);
+(1, 'Painting', '#5b7e3c', 3),
+(2, 'Music', '#ffd65a', 4),
+(3, 'Dance', '#ff9d23', 5),
+(4, 'Acting', '#ea5252', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `article`
+--
+
+CREATE TABLE `article` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `content` text NOT NULL,
+  `publishedAt` datetime NOT NULL,
+  `authorId` int(11) NOT NULL,
+  `variant` enum('Interview','Highlight','','') NOT NULL,
+  `artTypeId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -103,6 +120,14 @@ ALTER TABLE `art-type`
   ADD KEY `uploadId` (`uploadId`);
 
 --
+-- Indexes for table `article`
+--
+ALTER TABLE `article`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `artTypeId` (`artTypeId`),
+  ADD KEY `authorId` (`authorId`);
+
+--
 -- Indexes for table `location`
 --
 ALTER TABLE `location`
@@ -134,6 +159,12 @@ ALTER TABLE `art-type`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT for table `article`
+--
+ALTER TABLE `article`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
@@ -160,6 +191,13 @@ ALTER TABLE `user`
 --
 ALTER TABLE `art-type`
   ADD CONSTRAINT `art-type_ibfk_1` FOREIGN KEY (`uploadId`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `article`
+--
+ALTER TABLE `article`
+  ADD CONSTRAINT `article_ibfk_1` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `article_ibfk_2` FOREIGN KEY (`authorId`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `location`

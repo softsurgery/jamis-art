@@ -1,15 +1,21 @@
 <?php
+session_start();
+
 require_once __DIR__ . '/../../../controllers/ArticleController.php';
-require_once __DIR__ . '/../../../controllers/UserController.php';
 require_once __DIR__ . '/../../../controllers/ArtTypeController.php';
 
 $articleController = new ArticleController();
-$userController = new UserController();
 $artTypeController = new ArtTypeController();
 
 $error = '';
 $success = false;
 $article = null;
+
+// Get current user from session
+$authorId = $_SESSION['user_id'] ?? null;
+if (!$authorId) {
+    $error = 'User session not found. Please log in again.';
+}
 
 // Get article ID from query parameter
 $id = $_GET['id'] ?? null;
@@ -23,7 +29,7 @@ if (!$id) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article && $authorId) {
     try {
         $updatedArticle = new Article(
             $id,
@@ -31,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article) {
             $_POST['description'],
             $_POST['content'],
             $_POST['publishedAt'],
-            $_POST['authorId'],
-            $_POST['variant'] ?? 'default',
+            $authorId,
+            $_POST['variant'] ?? 'Interview',
             $_POST['artTypeId']
         );
         $articleController->update($updatedArticle);
@@ -43,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article) {
     }
 }
 
-$users = $userController->getAll();
 $artTypes = $artTypeController->getAll();
 
 // Convert datetime for input field
@@ -157,20 +162,6 @@ if ($article && isset($article['publishedAt'])) {
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Author <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="authorId" required
-                                        class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                                        <option value="">Select an author</option>
-                                        <?php foreach ($users as $user): ?>
-                                            <option value="<?= $user['id'] ?>" <?= $user['id'] == ($article['authorId'] ?? '') ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($user['firstName'] . ' ' . $user['lastName']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-
-                                <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Art Type <span
                                             class="text-red-500">*</span></label>
                                     <select name="artTypeId" required
@@ -183,22 +174,15 @@ if ($article && isset($article['publishedAt'])) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Published Date <span
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Variant <span
                                             class="text-red-500">*</span></label>
-                                    <input type="datetime-local" name="publishedAt" required
-                                        value="<?= $publishedAtValue ?>"
+                                    <select name="variant" required
                                         class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
-                                    <input type="text" name="variant" placeholder="e.g. featured, standard"
-                                        value="<?= htmlspecialchars($article['variant'] ?? '') ?>"
-                                        class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                                        <option value="Interview" <?= ($article['variant'] ?? '') === 'Interview' ? 'selected' : '' ?>>Interview</option>
+                                        <option value="Highlight" <?= ($article['variant'] ?? '') === 'Highlight' ? 'selected' : '' ?>>Highlight</option>
+                                    </select>
                                 </div>
                             </div>
 

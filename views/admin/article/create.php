@@ -1,25 +1,32 @@
 <?php
+session_start();
+
 require_once __DIR__ . '/../../../controllers/ArticleController.php';
-require_once __DIR__ . '/../../../controllers/UserController.php';
 require_once __DIR__ . '/../../../controllers/ArtTypeController.php';
 
 $articleController = new ArticleController();
-$userController = new UserController();
 $artTypeController = new ArtTypeController();
 
 $error = '';
 $success = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Get current user from session
+$authorId = $_SESSION['user_id'] ?? null;
+if (!$authorId) {
+    $error = 'User session not found. Please log in again.';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authorId) {
     try {
+        $publishedAt = date('Y-m-d H:i:s');
         $article = new Article(
             null,
             $_POST['title'],
             $_POST['description'],
             $_POST['content'],
-            $_POST['publishedAt'],
-            $_POST['authorId'],
-            $_POST['variant'] ?? 'default',
+            $publishedAt,
+            $authorId,
+            $_POST['variant'] ?? 'Interview',
             $_POST['artTypeId']
         );
         $articleController->save($article);
@@ -29,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$users = $userController->getAll();
 $artTypes = $artTypeController->getAll();
 ?>
 <!DOCTYPE html>
@@ -104,45 +110,31 @@ $artTypes = $artTypeController->getAll();
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Title <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" name="title" required placeholder="e.g. My Amazing Artwork"
-                                class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Description <span
-                                    class="text-red-500">*</span></label>
-                            <textarea name="description" required placeholder="Brief description of the article"
-                                class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition resize-none"
-                                rows="3"></textarea>
-                            <p class="mt-1 text-xs text-gray-500">A short summary that will appear as a preview.</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Content <span
-                                    class="text-red-500">*</span></label>
-                            <textarea name="content" required placeholder="Full article content"
-                                class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition resize-none"
-                                rows="8"></textarea>
-                            <p class="mt-1 text-xs text-gray-500">The main body of the article.</p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
+                    <?php if (!$error): ?>
+                        <form method="POST" class="space-y-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Author <span
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Title <span
                                         class="text-red-500">*</span></label>
-                                <select name="authorId" required
+                                <input type="text" name="title" required placeholder="e.g. My Amazing Artwork"
                                     class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                                    <option value="">Select an author</option>
-                                    <?php foreach ($users as $user): ?>
-                                        <option value="<?= $user['id'] ?>">
-                                            <?= htmlspecialchars($user['firstName'] . ' ' . $user['lastName']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Description <span
+                                        class="text-red-500">*</span></label>
+                                <textarea name="description" required placeholder="Brief description of the article"
+                                    class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition resize-none"
+                                    rows="3"></textarea>
+                                <p class="mt-1 text-xs text-gray-500">A short summary that will appear as a preview.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Content <span
+                                        class="text-red-500">*</span></label>
+                                <textarea name="content" required placeholder="Full article content"
+                                    class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition resize-none"
+                                    rows="8"></textarea>
+                                <p class="mt-1 text-xs text-gray-500">The main body of the article.</p>
                             </div>
 
                             <div>
@@ -158,34 +150,29 @@ $artTypes = $artTypeController->getAll();
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                        </div>
 
-                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Published Date <span
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Variant <span
                                         class="text-red-500">*</span></label>
-                                <input type="datetime-local" name="publishedAt" required
+                                <select name="variant" required
                                     class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                                    <option value="Interview">Interview</option>
+                                    <option value="Highlight">Highlight</option>
+                                </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
-                                <input type="text" name="variant" placeholder="e.g. featured, standard"
-                                    class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                            <div class="pt-6 border-t border-gray-200 flex gap-3">
+                                <a href="../article.php"
+                                    class="flex-1 inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition focus:ring-4 focus:ring-gray-200">
+                                    Cancel
+                                </a>
+                                <button type="submit"
+                                    class="flex-1 inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition focus:ring-4 focus:ring-indigo-600/20">
+                                    Create Article
+                                </button>
                             </div>
-                        </div>
-
-                        <div class="pt-6 border-t border-gray-200 flex gap-3">
-                            <a href="../article.php"
-                                class="flex-1 inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition focus:ring-4 focus:ring-gray-200">
-                                Cancel
-                            </a>
-                            <button type="submit"
-                                class="flex-1 inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition focus:ring-4 focus:ring-indigo-600/20">
-                                Create Article
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>
