@@ -60,7 +60,7 @@ $artTypes = $artTypeController->getAll();
                     </div>
                     <!-- Back Face -->
                     <div
-                        class="absolute inset-0 h-full w-full bg-gray-900/95 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-4 text-center border-b md:border-b-0 md:border-r border-red-500/30 backdrop-blur-md">
+                        class="h-full w-full bg-gray-900/95 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-4 text-center border-b md:border-b-0 md:border-r border-red-500/30 backdrop-blur-md">
                         <h3
                             class="text-lg md:text-xl font-bold mb-2 md:mb-4 text-red-500 uppercase tracking-widest leading-tight">
                             <?= htmlspecialchars($artType['label']) ?>
@@ -68,15 +68,16 @@ $artTypes = $artTypeController->getAll();
                         <p class="text-gray-400 text-xs md:text-sm mb-4 md:mb-6 hidden sm:block">Experience
                             <?= htmlspecialchars(strtolower($artType['label'])) ?> art.
                         </p>
+                        <br>
                         <div class="flex flex-col gap-2">
-                            <a href="./collection.php?type=<?= urlencode($artType['id']) ?>"
+                            <button onclick="redirectToCollection('<?= urlencode($artType['id']) ?>')"
                                 class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
                                 View Collection
-                            </a>
-                            <a href="./map.php?type=<?= urlencode($artType['id']) ?>"
+                            </button>
+                            <button onclick="redirectToMap('<?= urlencode($artType['id']) ?>')"
                                 class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
                                 Discover Locations
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -84,6 +85,15 @@ $artTypes = $artTypeController->getAll();
         <?php endforeach; ?>
 
     </section>
+    <script>
+        function redirectToCollection(typeId) {
+            window.location.href = `./collection.php?type=${encodeURIComponent(typeId)}`;
+        }
+
+        function redirectToMap(typeId) {
+            window.location.href = `./map.php?type=${encodeURIComponent(typeId)}`;
+        }
+    </script>
 </body>
 
 </html>

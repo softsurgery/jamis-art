@@ -49,7 +49,7 @@ if ($artTypeId) {
         ?>
     </nav>
 
-    <main class="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
+    <main class="pt-36 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
         <!-- Breadcrumbs -->
         <nav class="text-sm text-gray-400 mb-8" aria-label="Breadcrumb">
             <ol class="list-none p-0 inline-flex">

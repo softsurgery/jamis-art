@@ -42,7 +42,7 @@ function renderArticle($article, $isLoggedIn)
             </div>
             <h3 class='text-xl font-bold mb-3'>$title</h3>
             <p class='text-gray-400 mb-4 text-sm'>$description</p>
-            <a href='article.php?id=$id' class='text-red-400 hover:text-red-300 font-medium inline-flex items-center gap-1 text-sm'>
+            <a href='./read-article.php?id=$id' class='text-red-400 hover:text-red-300 font-medium inline-flex items-center gap-1 text-sm'>
                 Read Article &rarr;
             </a>
         </div>
