@@ -45,6 +45,8 @@ $artTypes = $artTypeController->getAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Article</title>
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <script src="../../../assets/js/tailwind.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -131,7 +133,7 @@ $artTypes = $artTypeController->getAll();
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Content <span
                                         class="text-red-500">*</span></label>
-                                <textarea name="content" required placeholder="Full article content"
+                                <textarea id="content" name="content" required placeholder="Full article content"
                                     class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition resize-none"
                                     rows="8"></textarea>
                                 <p class="mt-1 text-xs text-gray-500">The main body of the article.</p>
@@ -181,6 +183,11 @@ $artTypes = $artTypeController->getAll();
     <script src="../../../assets/js/lucide.js"></script>
     <script>
         lucide.createIcons();
+
+        const easyMDE = new EasyMDE({
+            element: document.getElementById('content'),
+            spellChecker: false,
+        });
     </script>
 </body>
 
