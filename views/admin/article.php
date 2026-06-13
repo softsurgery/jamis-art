@@ -1,7 +1,11 @@
 <?php
+session_start();
+require_once __DIR__ . '/../../lib/authHelper.php';
 require_once __DIR__ . '/../../controllers/ArticleController.php';
 require_once __DIR__ . '/../../controllers/UserController.php';
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+
+requireAdmin();
 
 $articleController = new ArticleController();
 $userController = new UserController();

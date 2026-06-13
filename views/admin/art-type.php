@@ -1,6 +1,11 @@
 <?php
+session_start();
+require_once __DIR__ . '/../../lib/authHelper.php';
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
 require_once __DIR__ . '/../../controllers/UploadController.php';
+
+requireAdmin();
+
 $controller = new ArtTypeController();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

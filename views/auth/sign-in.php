@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user) {
         $_SESSION['user_id'] = $user->getId();
+        $_SESSION['user_role'] = $user->getRole();
         header('Location: ../../index.php');
         exit;
     } else {

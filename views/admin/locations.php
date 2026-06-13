@@ -1,6 +1,10 @@
 <?php
+session_start();
+require_once __DIR__ . '/../../lib/authHelper.php';
 require_once __DIR__ . '/../../controllers/LocationController.php';
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+
+requireAdmin();
 
 $locationController = new LocationController();
 $artTypeController = new ArtTypeController();

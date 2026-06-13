@@ -14,7 +14,7 @@ class AuthController
     public function register($firstName, $lastName, $email, $password, $artTypeId)
     {
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-        $user = new User(null, $firstName, $lastName, $email, $passwordHash, 1, $artTypeId);
+        $user = new User(null, $firstName, $lastName, $email, $passwordHash, 1, 'Standard', $artTypeId);
         $this->userController->save($user);
     }
 

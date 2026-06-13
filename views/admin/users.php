@@ -1,6 +1,10 @@
 <?php
+session_start();
+require_once __DIR__ . '/../../lib/authHelper.php';
 require_once __DIR__ . '/../../controllers/UserController.php';
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+
+requireAdmin();
 
 $controller = new UserController();
 $artTypeController = new ArtTypeController();
@@ -10,12 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'];
 
         if ($action === 'create') {
-            $user = new User(null, $_POST['firstName'], $_POST['lastName'], $_POST['email'], password_hash($_POST['password'], PASSWORD_DEFAULT), $_POST['active'], $_POST['artTypeId']);
+            $user = new User(null, $_POST['firstName'], $_POST['lastName'], $_POST['email'], password_hash($_POST['password'], PASSWORD_DEFAULT), $_POST['active'], $_POST['role'], $_POST['artTypeId']);
             $controller->save($user);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
         } elseif ($action === 'update') {
-            $user = new User($_POST['id'], $_POST['firstName'], $_POST['lastName'], $_POST['email'], '', $_POST['active'], $_POST['artTypeId']);
+            $user = new User($_POST['id'], $_POST['firstName'], $_POST['lastName'], $_POST['email'], '', $_POST['active'], $_POST['role'], $_POST['artTypeId']);
             $controller->update($_POST['id'], $user);
             header("Location: " . $_SERVER['PHP_SELF']);
             exit;
@@ -85,7 +89,7 @@ $artTypes = $artTypeController->getAll();
                                 <th class="px-6 py-4 font-medium">ID</th>
                                 <th class="px-6 py-4 font-medium">Name</th>
                                 <th class="px-6 py-4 font-medium">Email</th>
-                                <th class="px-6 py-4 font-medium">Art</th>
+                                <th class="px-6 py-4 font-medium">Role</th>
                                 <th class="px-6 py-4 font-medium">Status</th>
                                 <th class="px-6 py-4 font-medium text-right">Actions</th>
                             </tr>
@@ -102,14 +106,12 @@ $artTypes = $artTypeController->getAll();
                                     </td>
                                     <td class="px-6 py-4">
                                         <?php
-                                        $artLabel = 'N/A';
-                                        foreach ($artTypes as $type) {
-                                            if ($type['id'] == $user['artTypeId']) {
-                                                $artLabel = $type['label'];
-                                                break;
-                                            }
+                                        $roleLabel = $user['role'] ?? 'Standard';
+                                        if (strtolower($roleLabel) === 'admin') {
+                                            echo '<span class="inline-flex items-center justify-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-700">Admin</span>';
+                                        } else {
+                                            echo '<span class="inline-flex items-center justify-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs text-blue-700">Standard</span>';
                                         }
-                                        echo htmlspecialchars($artLabel);
                                         ?>
                                     </td>
                                     <td class="px-6 py-4">
@@ -156,7 +158,7 @@ $artTypes = $artTypeController->getAll();
                                                 <?php endif; ?>
 
                                                 <button
-                                                    onclick="openSheet('update', <?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['firstName'])) ?>', '<?= htmlspecialchars(addslashes($user['lastName'])) ?>', '<?= htmlspecialchars(addslashes($user['email'])) ?>', '<?= htmlspecialchars(addslashes($user['active'])) ?>', '<?= htmlspecialchars(addslashes($user['artTypeId'])) ?>')"
+                                                    onclick="openSheet('update', <?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['firstName'])) ?>', '<?= htmlspecialchars(addslashes($user['lastName'])) ?>', '<?= htmlspecialchars(addslashes($user['email'])) ?>', '<?= htmlspecialchars(addslashes($user['active'])) ?>', '<?= htmlspecialchars(addslashes($user['role'])) ?>', '<?= htmlspecialchars(addslashes($user['artTypeId'])) ?>')"
                                                     class="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2 transition">
                                                     <i data-lucide="edit" class="w-4 h-4 text-gray-400"></i> Edit
                                                 </button>
@@ -235,10 +237,18 @@ $artTypes = $artTypeController->getAll();
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Role (Art Type)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
+                    <select name="role" id="form-role" required
+                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                        <option value="Standard">Standard</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Art Type</label>
                     <select name="artTypeId" id="form-artTypeId" required
                         class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                        <option value="">Select Role/Type</option>
+                        <option value="">Select Art Type</option>
                         <?php foreach ($artTypes as $type): ?>
                             <option value="<?= htmlspecialchars($type['id']) ?>"><?= htmlspecialchars($type['label']) ?>
                             </option>
@@ -299,13 +309,14 @@ $artTypes = $artTypeController->getAll();
         const sheet = document.getElementById('side-sheet');
         const sheetContent = document.getElementById('sheet-content');
 
-        function openSheet(action, id = '', firstName = '', lastName = '', email = '', active = '', artTypeId = '') {
+        function openSheet(action, id = '', firstName = '', lastName = '', email = '', active = '', role = '', artTypeId = '') {
             document.getElementById('form-action').value = action;
             document.getElementById('form-id').value = id;
             document.getElementById('form-firstName').value = firstName;
             document.getElementById('form-lastName').value = lastName;
             document.getElementById('form-email').value = email;
             document.getElementById('form-active').value = active;
+            document.getElementById('form-role').value = role || 'Standard';
 
             if (action === 'create') {
                 document.getElementById('form-password').setAttribute('required', 'required');

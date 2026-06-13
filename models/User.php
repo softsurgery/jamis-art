@@ -7,9 +7,10 @@ class User
     private $email;
     private $passwordHash;
     private $active;
+    private $role;
     private $artTypeId;
 
-    public function __construct($id, $firstName, $lastName, $email, $passwordHash, $active, $artTypeId)
+    public function __construct($id, $firstName, $lastName, $email, $passwordHash, $active, $role, $artTypeId)
     {
         $this->id = $id;
         $this->firstName = $firstName;
@@ -17,6 +18,7 @@ class User
         $this->email = $email;
         $this->passwordHash = $passwordHash;
         $this->active = $active;
+        $this->role = $role;
         $this->artTypeId = $artTypeId;
     }
 
@@ -48,6 +50,11 @@ class User
     public function getActive()
     {
         return $this->active;
+    }
+
+    public function getRole()
+    {
+        return $this->role;
     }
 
     public function getArtTypeId()
@@ -89,6 +96,11 @@ class User
     public function setActive($active)
     {
         $this->active = $active;
+    }
+
+    public function setRole($role)
+    {
+        $this->role = $role;
     }
 }
 ?>
