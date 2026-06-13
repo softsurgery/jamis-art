@@ -75,10 +75,10 @@ $artTypes = $artTypeController->getAll();
                         <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
                         <p class="mt-1 text-sm text-gray-500">Manage all registered users, roles, and status.</p>
                     </div>
-                    <button onclick="openSheet('create')"
+                    <a href="user/create.php"
                         class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300">
                         + Add New User
-                    </button>
+                    </a>
                 </div>
 
                 <!-- Table -->
@@ -157,11 +157,10 @@ $artTypes = $artTypeController->getAll();
                                                     </form>
                                                 <?php endif; ?>
 
-                                                <button
-                                                    onclick="openSheet('update', <?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['firstName'])) ?>', '<?= htmlspecialchars(addslashes($user['lastName'])) ?>', '<?= htmlspecialchars(addslashes($user['email'])) ?>', '<?= htmlspecialchars(addslashes($user['active'])) ?>', '<?= htmlspecialchars(addslashes($user['role'])) ?>', '<?= htmlspecialchars(addslashes($user['artTypeId'])) ?>')"
+                                                <a href="user/update.php?id=<?= $user['id'] ?>"
                                                     class="w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left flex items-center gap-2 transition">
                                                     <i data-lucide="edit" class="w-4 h-4 text-gray-400"></i> Edit
-                                                </button>
+                                                </a>
                                                 <button onclick="openDialog(<?= $user['id'] ?>)"
                                                     class="w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left flex items-center gap-2 transition">
                                                     <i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i> Delete
@@ -187,82 +186,6 @@ $artTypes = $artTypeController->getAll();
 
         </main>
     </section>
-
-    <!-- Side Sheet for Create/Update -->
-    <div id="side-sheet"
-        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 hidden justify-end transition-opacity">
-        <div class="bg-white w-[400px] h-full shadow-2xl p-6 flex flex-col translate-x-full transition-transform duration-300 ease-out"
-            id="sheet-content">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
-                <h2 id="sheet-title" class="text-xl font-semibold text-gray-900">Add User</h2>
-                <button onclick="closeSheet()"
-                    class="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-full transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form method="POST" id="sheet-form" class="flex flex-col gap-5 flex-1">
-                <input type="hidden" name="action" id="form-action" value="create">
-                <input type="hidden" name="id" id="form-id" value="">
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
-                    <input type="text" name="firstName" id="form-firstName" required placeholder="e.g. John"
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
-                    <input type="text" name="lastName" id="form-lastName" required placeholder="e.g. Doe"
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                    <input type="email" name="email" id="form-email" required placeholder="john@example.com"
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-                    <input type="password" name="password" id="form-password"
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
-                    <select name="active" id="form-active" required
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-                    <select name="role" id="form-role" required
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                        <option value="Standard">Standard</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Art Type</label>
-                    <select name="artTypeId" id="form-artTypeId" required
-                        class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                        <option value="">Select Art Type</option>
-                        <?php foreach ($artTypes as $type): ?>
-                            <option value="<?= htmlspecialchars($type['id']) ?>"><?= htmlspecialchars($type['label']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="mt-auto pt-6 border-t border-gray-100">
-                    <button type="submit"
-                        class="w-full bg-indigo-600 text-white rounded-lg py-2.5 font-medium hover:bg-indigo-700 transition focus:ring-4 focus:ring-indigo-600/20">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- Delete Confirmation Dialog -->
     <div id="delete-dialog"
@@ -303,58 +226,6 @@ $artTypes = $artTypeController->getAll();
             if (!e.target.closest('.inline-block.relative')) {
                 document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
             }
-        });
-
-        // Sheet Logic
-        const sheet = document.getElementById('side-sheet');
-        const sheetContent = document.getElementById('sheet-content');
-
-        function openSheet(action, id = '', firstName = '', lastName = '', email = '', active = '', role = '', artTypeId = '') {
-            document.getElementById('form-action').value = action;
-            document.getElementById('form-id').value = id;
-            document.getElementById('form-firstName').value = firstName;
-            document.getElementById('form-lastName').value = lastName;
-            document.getElementById('form-email').value = email;
-            document.getElementById('form-active').value = active;
-            document.getElementById('form-role').value = role || 'Standard';
-
-            if (action === 'create') {
-                document.getElementById('form-password').setAttribute('required', 'required');
-            } else {
-                document.getElementById('form-password').removeAttribute('required');
-            }
-
-            if (artTypeId) {
-                document.getElementById('form-artTypeId').value = artTypeId;
-            } else {
-                document.getElementById('form-artTypeId').value = "";
-            }
-
-            document.getElementById('sheet-title').innerText = action === 'create' ? 'Add User' : 'Edit User';
-
-            sheet.classList.remove('hidden');
-            sheet.classList.add('flex');
-
-            // Allow display:flex to apply before translating
-            requestAnimationFrame(() => {
-                sheetContent.classList.remove('translate-x-full');
-            });
-
-            // Close dropdowns
-            document.querySelectorAll('[id^="dropdown-"]').forEach(el => el.classList.add('hidden'));
-        }
-
-        function closeSheet() {
-            sheetContent.classList.add('translate-x-full');
-            setTimeout(() => {
-                sheet.classList.add('hidden');
-                sheet.classList.remove('flex');
-            }, 300);
-        }
-
-        // Click outside sheet to close
-        sheet.addEventListener('click', (e) => {
-            if (e.target === sheet) closeSheet();
         });
 
         // Dialog Logic

@@ -88,6 +88,18 @@ class UserController
         }
     }
 
+    public function updatePassword($id, $newPasswordHash)
+    {
+        global $pdo;
+        $sql = "UPDATE user SET passwordHash = :passwordHash WHERE id = :id";
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute([':id' => $id, ':passwordHash' => $newPasswordHash]);
+        } catch (Exception $e) {
+            die("Erreur lors de la mise à jour du mot de passe : " . $e->getMessage());
+        }
+    }
+
     // ✅ Get user by ID
     public function getById($id)
     {
