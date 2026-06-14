@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 12, 2026 at 09:20 PM
+-- Generation Time: Jun 14, 2026 at 02:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -89,7 +89,20 @@ CREATE TABLE `upload` (
   `mimeType` varchar(255) NOT NULL,
   `size` int(11) NOT NULL,
   `isTemporary` tinyint(1) NOT NULL,
-  `isPrivate` tinyint(1) NOT NULL
+  `isPrivate` tinyint(1) NOT NULL,
+  `groupeId` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `upload-group`
+--
+
+CREATE TABLE `upload-group` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `parent` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -105,7 +118,7 @@ CREATE TABLE `user` (
   `email` varchar(100) NOT NULL,
   `passwordHash` varchar(255) NOT NULL,
   `active` tinyint(1) NOT NULL,
-  `role` enum('Standard','Admin') NOT NULL DEFAULT 'Standard',
+  `role` enum('Standard','Admin','','') NOT NULL,
   `artTypeId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -139,7 +152,15 @@ ALTER TABLE `location`
 -- Indexes for table `upload`
 --
 ALTER TABLE `upload`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `groupeId` (`groupeId`);
+
+--
+-- Indexes for table `upload-group`
+--
+ALTER TABLE `upload-group`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `parent` (`parent`);
 
 --
 -- Indexes for table `user`
@@ -178,6 +199,12 @@ ALTER TABLE `upload`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `upload-group`
+--
+ALTER TABLE `upload-group`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
@@ -205,6 +232,18 @@ ALTER TABLE `article`
 --
 ALTER TABLE `location`
   ADD CONSTRAINT `location_ibfk_1` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `upload`
+--
+ALTER TABLE `upload`
+  ADD CONSTRAINT `upload_ibfk_1` FOREIGN KEY (`groupeId`) REFERENCES `upload-group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `upload-group`
+--
+ALTER TABLE `upload-group`
+  ADD CONSTRAINT `upload-group_ibfk_1` FOREIGN KEY (`parent`) REFERENCES `upload-group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `user`
