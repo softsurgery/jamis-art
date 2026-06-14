@@ -165,14 +165,17 @@ class UploadController
     /**
      * Post /multiple endpoint logic
      */
-    public static function uploadMultipleFiles($fileArrays)
+    public static function uploadMultipleFiles($fileArrays, $groupeId = null)
     {
         $files = self::formatFileArray($fileArrays);
         $uploaded = [];
         foreach ($files as $file) {
             if ($file['error'] === UPLOAD_ERR_OK) {
-                $uploaded[] = self::uploadFile($file);
+                $uploaded[] = self::uploadFile($file, false, $groupeId);
             }
+        }
+        if (empty($uploaded) && !empty($files)) {
+            throw new Exception("No files were uploaded successfully.");
         }
         return $uploaded;
     }
