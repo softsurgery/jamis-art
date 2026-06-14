@@ -194,9 +194,10 @@
         const easyMDE = new EasyMDE({
             element: config.element,
             spellChecker: false,
-            previewRender: function (plainText) {
-                const html = this.markdown(plainText);
-                return enhancePreviewHtml(html, previewBasePath);
+            renderingConfig: {
+                sanitizerFunction: function (renderedHtml) {
+                    return enhancePreviewHtml(renderedHtml, previewBasePath);
+                },
             },
             toolbar: [
                 'bold',
