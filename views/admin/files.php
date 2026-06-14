@@ -2,55 +2,72 @@
 session_start();
 require_once __DIR__ . '/../../lib/authHelper.php';
 require_once __DIR__ . '/../../controllers/UploadController.php';
+require_once __DIR__ . '/../../controllers/UploadGroupController.php';
 
 requireAdmin();
 
-$currentFolder = isset($_GET['folder']) ? $_GET['folder'] : '';
+$currentFolderId = isset($_GET['folder']) ? (int) $_GET['folder'] : 0;
 $viewMode = isset($_GET['view']) ? $_GET['view'] : 'grid'; // grid or list
 
-// Get all files
+// Get current group info
+$currentGroup = null;
+if ($currentFolderId !== 0) {
+    $currentGroup = UploadGroupController::getById($currentFolderId);
+    if (!$currentGroup) {
+        $currentFolderId = 0; // Reset to root if group doesn't exist
+    }
+}
+
+// Get child groups
+$childGroups = UploadGroupController::getByParent($currentFolderId);
+
+// Get files in current group
 $allUploads = UploadController::findAll();
+$filesInCurrentFolder = array_filter($allUploads, function ($upload) use ($currentFolderId) {
+    return $upload->getId() ? ($upload->getId() ? true : false) : false;
+});
 
-// Organize files by folder
-$folders = [];
+// Filter files by groupeId - need to check the database directly
+global $pdo;
 $filesInCurrentFolder = [];
-
-foreach ($allUploads as $upload) {
-    $path = $upload->getRelativePath();
-    // Extract folder from path (e.g., "storage/folder/file.jpg" -> "folder")
-    $pathParts = explode('/', $path);
-
-    if (count($pathParts) > 2) {
-        $folder = $pathParts[1];
-    } else {
-        $folder = '';
-    }
-
-    // Add to folders list
-    if ($folder && !in_array($folder, $folders)) {
-        $folders[] = $folder;
-    }
-
-    // Add to current folder files
-    if ($folder === $currentFolder) {
-        $filesInCurrentFolder[] = $upload;
-    } elseif (!$folder && !$currentFolder) {
-        $filesInCurrentFolder[] = $upload;
-    }
+if ($currentFolderId === 0) {
+    // Get files with no group (groupeId IS NULL)
+    $stmt = $pdo->prepare("SELECT * FROM upload WHERE groupeId IS NULL ORDER BY slug ASC");
+} else {
+    // Get files in specific group
+    $stmt = $pdo->prepare("SELECT * FROM upload WHERE groupeId = :groupId ORDER BY slug ASC");
+    $stmt->bindValue(':groupId', $currentFolderId, PDO::PARAM_INT);
+}
+$stmt->execute();
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($results as $row) {
+    $filesInCurrentFolder[] = new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate']);
 }
 
-sort($folders);
-
-// Handle delete action
+// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'delete' && isset($_POST['id'])) {
-        UploadController::delete($_POST['id']);
-        header("Location: " . $_SERVER['PHP_SELF']);
+    if ($_POST['action'] === 'delete_file' && isset($_POST['file_id'])) {
+        UploadController::delete($_POST['file_id']);
+        header("Location: " . $_SERVER['PHP_SELF'] . "?folder=$currentFolderId&view=$viewMode");
         exit;
+    } elseif ($_POST['action'] === 'create_folder' && isset($_POST['folder_name'])) {
+        try {
+            UploadGroupController::create($_POST['folder_name'], $currentFolderId);
+            header("Location: " . $_SERVER['PHP_SELF'] . "?folder=$currentFolderId&view=$viewMode");
+            exit;
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
+    } elseif ($_POST['action'] === 'delete_folder' && isset($_POST['folder_id'])) {
+        try {
+            UploadGroupController::delete($_POST['folder_id']);
+            header("Location: " . $_SERVER['PHP_SELF'] . "?folder=$currentFolderId&view=$viewMode");
+            exit;
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+        }
     }
 }
-
-// Helper function to get file icon based on MIME type
 function getMimeIcon($mimeType)
 {
     if (strpos($mimeType, 'image/') === 0)
@@ -86,6 +103,7 @@ function getThumbnailUrl($upload)
     return null;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -100,113 +118,7 @@ function getThumbnailUrl($upload)
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
-    <style>
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 1rem;
-        }
-
-        .file-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .file-card:hover {
-            border-color: #4f46e5;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .file-thumbnail {
-            width: 100%;
-            height: 120px;
-            background: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            font-size: 2rem;
-            color: #9ca3af;
-        }
-
-        .file-thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .folder-icon {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-        }
-
-        .file-info {
-            padding: 0.5rem;
-            text-align: center;
-        }
-
-        .file-name {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #1f2937;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-bottom: 0.25rem;
-        }
-
-        .file-size {
-            font-size: 0.7rem;
-            color: #9ca3af;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            padding: 0.5rem;
-            border-top: 1px solid #f3f4f6;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .file-card:hover .file-actions {
-            opacity: 1;
-        }
-
-        .file-action-btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border: none;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .breadcrumb-item {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 0.5rem;
-        }
-
-        .breadcrumb-item a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-
-        .breadcrumb-item a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/css/admin.css">
 </head>
 
 <body class="flex flex-col flex-1 h-screen w-screen overflow-hidden">
@@ -253,76 +165,104 @@ function getThumbnailUrl($upload)
                 <div class="mb-6 p-3 bg-white rounded-lg border border-gray-200">
                     <span class="text-sm text-gray-600">
                         <a href="?view=<?php echo $viewMode; ?>" class="text-indigo-600 hover:underline">📁 Root</a>
-                        <?php if ($currentFolder): ?>
-                            <span class="text-gray-400 mx-2">/</span>
-                            <span class="text-gray-900 font-medium"><?php echo htmlspecialchars($currentFolder); ?></span>
-                        <?php endif; ?>
+                        <?php
+                        if ($currentFolderId !== 0 && $currentGroup) {
+                            $breadcrumbs = UploadGroupController::getBreadcrumbPath($currentFolderId);
+                            foreach ($breadcrumbs as $crumb) {
+                                echo '<span class="text-gray-400 mx-2">/</span>';
+                                echo '<a href="?folder=' . $crumb->getId() . '&view=' . $viewMode . '" class="text-indigo-600 hover:underline">' . htmlspecialchars($crumb->getName()) . '</a>';
+                            }
+                        }
+                        ?>
                     </span>
+                </div>
+
+                <!-- Create Folder Form -->
+                <div class="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+                    <form method="POST" class="flex gap-2">
+                        <input type="hidden" name="action" value="create_folder">
+                        <input type="text" name="folder_name" placeholder="New folder name..."
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required>
+                        <button type="submit"
+                            class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Create Folder
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Main Content -->
                 <?php if ($viewMode === 'grid'): ?>
                     <!-- GRID VIEW -->
                     <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="file-grid">
+                        <div class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
                             <!-- Folders -->
-                            <?php foreach ($folders as $folder): ?>
-                                <div class="file-card">
-                                    <a href="?folder=<?php echo urlencode($folder); ?>&view=grid">
-                                        <div class="file-thumbnail">
-                                            <div class="folder-icon">
-                                                <i data-lucide="folder" style="width: 48px; height: 48px; color: white;"></i>
+                            <?php foreach ($childGroups as $group): ?>
+                                <div class="group bg-white border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 cursor-pointer hover:border-indigo-600 hover:shadow-md">
+                                    <a href="?folder=<?php echo $group->getId(); ?>&view=grid">
+                                        <div class="w-full h-[120px] bg-gray-100 flex items-center justify-center overflow-hidden text-2xl text-gray-400">
+                                            <div class="w-full h-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                                                <i data-lucide="folder" class="w-12 h-12 text-white"></i>
                                             </div>
                                         </div>
-                                        <div class="file-info">
-                                            <div class="file-name"><?php echo htmlspecialchars($folder); ?></div>
-                                            <div class="file-size">Folder</div>
+                                        <div class="p-2 text-center">
+                                            <div class="text-xs font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap mb-1"><?php echo htmlspecialchars($group->getName()); ?></div>
+                                            <div class="text-[0.7rem] text-gray-400">Folder</div>
                                         </div>
                                     </a>
-                                </div>
-                            <?php endforeach; ?>
-
-                            <!-- Files -->
-                            <?php foreach ($filesInCurrentFolder as $upload): ?>
-                                <div class="file-card">
-                                    <div class="file-thumbnail">
-                                        <?php
-                                        $thumbnail = getThumbnailUrl($upload);
-                                        if ($thumbnail):
-                                            ?>
-                                            <img src="../../<?php echo htmlspecialchars($thumbnail); ?>"
-                                                alt="<?php echo htmlspecialchars($upload->getSlug()); ?>">
-                                        <?php else: ?>
-                                            <i data-lucide="<?php echo getMimeIcon($upload->getMimetype()); ?>"
-                                                style="width: 48px; height: 48px;"></i>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="file-info">
-                                        <div class="file-name" title="<?php echo htmlspecialchars($upload->getSlug()); ?>">
-                                            <?php echo htmlspecialchars($upload->getSlug()); ?></div>
-                                        <div class="file-size"><?php echo formatFileSize($upload->getSize()); ?></div>
-                                    </div>
-                                    <div class="file-actions">
-                                        <a href="../../<?php echo htmlspecialchars($upload->getRelativePath()); ?>"
-                                            target="_blank" class="file-action-btn bg-blue-500 text-white hover:bg-blue-600">
-                                            <i data-lucide="eye" class="w-3 h-3"></i>
-                                        </a>
-                                        <a href="../../<?php echo htmlspecialchars($upload->getRelativePath()); ?>" download
-                                            class="file-action-btn bg-green-500 text-white hover:bg-green-600">
-                                            <i data-lucide="download" class="w-3 h-3"></i>
-                                        </a>
-                                        <button onclick="deleteFile(<?php echo $upload->getId(); ?>)"
-                                            class="file-action-btn bg-red-500 text-white hover:bg-red-600">
+                                    <div class="flex gap-2 justify-center items-center p-2 border-t border-gray-100 opacity-0 transition-opacity duration-200 w-fit group-hover:opacity-100">
+                                        <button onclick="deleteFolder(<?php echo $group->getId(); ?>)"
+                                            class="px-2 py-1 text-xs rounded cursor-pointer transition-all duration-200 bg-red-500 text-white hover:bg-red-600 flex-1">
                                             <i data-lucide="trash-2" class="w-3 h-3"></i>
                                         </button>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
 
-                            <?php if (empty($folders) && empty($filesInCurrentFolder)): ?>
+                            <!-- Files -->
+                            <?php foreach ($filesInCurrentFolder as $upload): ?>
+                                <div class="group bg-white border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 cursor-pointer hover:border-indigo-600 hover:shadow-md">
+                                    <div class="w-full h-[120px] bg-gray-100 flex items-center justify-center overflow-hidden text-2xl text-gray-400">
+                                        <?php
+                                        $thumbnail = getThumbnailUrl($upload);
+                                        if ($thumbnail):
+                                            ?>
+                                            <img src="../../<?php echo htmlspecialchars($thumbnail); ?>"
+                                                alt="<?php echo htmlspecialchars($upload->getSlug()); ?>"
+                                                class="w-full h-full object-cover">
+                                        <?php else: ?>
+                                            <i data-lucide="<?php echo getMimeIcon($upload->getMimetype()); ?>"
+                                                class="w-12 h-12"></i>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="p-2 text-center">
+                                        <div class="text-xs font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap mb-1" title="<?php echo htmlspecialchars($upload->getSlug()); ?>">
+                                            <?php echo htmlspecialchars($upload->getSlug()); ?>
+                                        </div>
+                                        <div class="text-[0.7rem] text-gray-400"><?php echo formatFileSize($upload->getSize()); ?></div>
+                                    </div>
+                                    <div class="flex gap-2 justify-center items-center p-2 border-t border-gray-100 opacity-0 transition-opacity duration-200 w-fit group-hover:opacity-100">
+                                        <a href="../../<?php echo htmlspecialchars($upload->getRelativePath()); ?>"
+                                            target="_blank" class="px-2 py-1 text-xs rounded cursor-pointer transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600">
+                                            <i data-lucide="eye" class="w-3 h-3"></i>
+                                        </a>
+                                        <a href="../../<?php echo htmlspecialchars($upload->getRelativePath()); ?>" download
+                                            class="px-2 py-1 text-xs rounded cursor-pointer transition-all duration-200 bg-green-500 text-white hover:bg-green-600">
+                                            <i data-lucide="download" class="w-3 h-3"></i>
+                                        </a>
+                                        <button onclick="deleteFile(<?php echo $upload->getId(); ?>)"
+                                            class="px-2 py-1 text-xs rounded cursor-pointer transition-all duration-200 bg-red-500 text-white hover:bg-red-600">
+                                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+
+                            <?php if (empty($childGroups) && empty($filesInCurrentFolder)): ?>
                                 <div class="col-span-full text-center py-12">
                                     <i data-lucide="inbox" class="w-12 h-12 mx-auto text-gray-400 mb-4"></i>
-                                    <p class="text-gray-500">No files in this folder</p>
+                                    <p class="text-gray-500">No files or folders in this location</p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -342,18 +282,23 @@ function getThumbnailUrl($upload)
                             </thead>
                             <tbody>
                                 <!-- Folders -->
-                                <?php foreach ($folders as $folder): ?>
+                                <?php foreach ($childGroups as $group): ?>
                                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                                         <td class="px-6 py-3">
-                                            <a href="?folder=<?php echo urlencode($folder); ?>&view=list"
+                                            <a href="?folder=<?php echo $group->getId(); ?>&view=list"
                                                 class="flex items-center text-indigo-600 hover:underline">
                                                 <i data-lucide="folder" class="w-4 h-4 mr-2"></i>
-                                                <span><?php echo htmlspecialchars($folder); ?></span>
+                                                <span><?php echo htmlspecialchars($group->getName()); ?></span>
                                             </a>
                                         </td>
                                         <td class="px-6 py-3">Folder</td>
                                         <td class="px-6 py-3">-</td>
-                                        <td class="px-6 py-3">-</td>
+                                        <td class="px-6 py-3">
+                                            <button onclick="deleteFolder(<?php echo $group->getId(); ?>)"
+                                                class="inline-flex items-center justify-center rounded px-2 py-1 text-xs bg-red-50 text-red-600 hover:bg-red-100 transition">
+                                                Delete
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
 
@@ -390,12 +335,12 @@ function getThumbnailUrl($upload)
                                     </tr>
                                 <?php endforeach; ?>
 
-                                <?php if (empty($folders) && empty($filesInCurrentFolder)): ?>
+                                <?php if (empty($childGroups) && empty($filesInCurrentFolder)): ?>
                                     <tr>
                                         <td colspan="4" class="px-6 py-12 text-center text-gray-500">
                                             <div class="flex flex-col items-center">
                                                 <i data-lucide="inbox" class="w-12 h-12 mb-4 text-gray-400"></i>
-                                                <p>No files in this folder</p>
+                                                <p>No files or folders in this location</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -406,7 +351,7 @@ function getThumbnailUrl($upload)
                 <?php endif; ?>
 
                 <!-- Back Button -->
-                <?php if ($currentFolder): ?>
+                <?php if ($currentFolderId !== 0): ?>
                     <div class="mt-6">
                         <a href="?view=<?php echo $viewMode; ?>"
                             class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-900 transition hover:bg-gray-300">
@@ -419,10 +364,15 @@ function getThumbnailUrl($upload)
         </main>
     </section>
 
-    <!-- Delete Form (Hidden) -->
-    <form id="deleteForm" method="POST" style="display: none;">
-        <input type="hidden" name="action" value="delete">
-        <input type="hidden" name="id" id="deleteId">
+    <!-- Delete Forms (Hidden) -->
+    <form id="deleteFileForm" method="POST" class="hidden">
+        <input type="hidden" name="action" value="delete_file">
+        <input type="hidden" name="file_id" id="fileId">
+    </form>
+
+    <form id="deleteFolderForm" method="POST" class="hidden">
+        <input type="hidden" name="action" value="delete_folder">
+        <input type="hidden" name="folder_id" id="folderId">
     </form>
 
     <script>
@@ -430,14 +380,21 @@ function getThumbnailUrl($upload)
 
         function switchView(mode) {
             const folder = new URLSearchParams(window.location.search).get('folder');
-            const folderParam = folder ? '&folder=' + encodeURIComponent(folder) : '';
+            const folderParam = folder ? '&folder=' + folder : '';
             window.location.href = '?view=' + mode + folderParam;
         }
 
         function deleteFile(id) {
             if (confirm('Are you sure you want to delete this file?')) {
-                document.getElementById('deleteId').value = id;
-                document.getElementById('deleteForm').submit();
+                document.getElementById('fileId').value = id;
+                document.getElementById('deleteFileForm').submit();
+            }
+        }
+
+        function deleteFolder(id) {
+            if (confirm('Are you sure you want to delete this folder? Files will be moved to parent folder.')) {
+                document.getElementById('folderId').value = id;
+                document.getElementById('deleteFolderForm').submit();
             }
         }
     </script>

@@ -39,10 +39,10 @@ class UploadController
 
         $uploads = [];
         foreach ($results as $row) {
-            $uploads[] = new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate']);
+            $uploads[] = new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate'], $row['groupeId']);
         }
 
-        $stmtCount = $pdo->query("SELECT COUNT(*) FROM uploads");
+        $stmtCount = $pdo->query("SELECT COUNT(*) FROM upload");
         $total = $stmtCount->fetchColumn();
 
         return [
@@ -64,7 +64,7 @@ class UploadController
 
         $uploads = [];
         foreach ($results as $row) {
-            $uploads[] = new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate']);
+            $uploads[] = new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate'], $row['groupeId']);
         }
         return $uploads;
     }
@@ -85,7 +85,7 @@ class UploadController
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
-            return new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate']);
+            return new Upload($row['id'], $row['slug'], $row['relativePath'], $row['mimeType'], $row['size'], $row['isTemporary'], $row['isPrivate'], $row['groupeId']);
         }
         return null;
     }
@@ -93,7 +93,7 @@ class UploadController
     /**
      * Post /upload endpoint logic
      */
-    public static function uploadFile($fileData, $isTemporary = false)
+    public static function uploadFile($fileData, $isTemporary = false, $groupeId = null)
     {
         if (!isset($fileData['tmp_name']) || $fileData['error'] !== UPLOAD_ERR_OK) {
             throw new Exception("File upload error.");
@@ -112,7 +112,7 @@ class UploadController
                 : $fileData['type'];
             $size = filesize($absolutePath);
 
-            $stmt = $pdo->prepare("INSERT INTO upload (slug, relativePath, mimeType, size, isTemporary, isPrivate) VALUES (:slug, :relativePath, :mimeType, :size, :isTemporary, :isPrivate)");
+            $stmt = $pdo->prepare("INSERT INTO upload (slug, relativePath, mimeType, size, isTemporary, isPrivate, groupeId) VALUES (:slug, :relativePath, :mimeType, :size, :isTemporary, :isPrivate, :groupeId)");
 
             $stmt->execute([
                 'slug' => $slug,
@@ -120,11 +120,12 @@ class UploadController
                 'mimeType' => $mimeType,
                 'size' => $size,
                 'isTemporary' => $isTemporary ? 1 : 0,
-                'isPrivate' => 0
+                'isPrivate' => 0,
+                'groupeId' => $groupeId
             ]);
 
             $id = $pdo->lastInsertId();
-            return new Upload($id, $slug, $relativePath, $mimeType, $size, $isTemporary, false);
+            return new Upload($id, $slug, $relativePath, $mimeType, $size, $isTemporary, false, $groupeId);
         }
 
         throw new Exception("Failed to move uploaded file.");
@@ -294,6 +295,20 @@ class UploadController
         $stmt->execute(['id' => $upload->getId()]);
 
         return $upload;
+    }
+
+    /**
+     * Move file to a group
+     */
+    public static function moveToGroup($fileId, $groupeId = null)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("UPDATE upload SET groupeId = :groupeId WHERE id = :id");
+        $stmt->execute([
+            'groupeId' => $groupeId,
+            'id' => $fileId
+        ]);
+        return self::getFileByIdOrSlug($fileId);
     }
 }
 ?>

@@ -8,8 +8,9 @@ class Upload
     private $size;
     private $isTemporary;
     private $isPrivate;
+    private $groupeId;
 
-    public function __construct($id, $slug, $relativePath, $mimeType, $size, $isTemporary = false, $isPrivate = false)
+    public function __construct($id, $slug, $relativePath, $mimeType, $size, $isTemporary = false, $isPrivate = false, $groupeId = null)
     {
         $this->id = $id;
         $this->slug = $slug;
@@ -18,6 +19,7 @@ class Upload
         $this->size = $size;
         $this->isTemporary = $isTemporary;
         $this->isPrivate = $isPrivate;
+        $this->groupeId = $groupeId;
     }
 
     public function getId()
@@ -55,6 +57,11 @@ class Upload
         return $this->isPrivate;
     }
 
+    public function getGroupeId()
+    {
+        return $this->groupeId;
+    }
+
     public function setId($id)
     {
         $this->id = $id;
@@ -88,6 +95,11 @@ class Upload
     public function setIsPrivate($isPrivate)
     {
         $this->isPrivate = $isPrivate;
+    }
+
+    public function setGroupeId($groupeId)
+    {
+        $this->groupeId = $groupeId;
     }
 }
 ?>
