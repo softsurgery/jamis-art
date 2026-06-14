@@ -303,6 +303,14 @@ function buildFolderUrl($folderId, $viewMode)
                                     </div>
                                     <div
                                         class="flex gap-1.5 p-2 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <?php if ($thumbnail): ?>
+                                            <button type="button"
+                                                onclick="copyImageMarkdown('<?php echo htmlspecialchars($upload->getRelativePath(), ENT_QUOTES); ?>', '<?php echo htmlspecialchars($upload->getSlug(), ENT_QUOTES); ?>')"
+                                                class="flex-1 inline-flex items-center justify-center p-1.5 rounded-md bg-indigo-500 text-white hover:bg-indigo-600 transition border-none cursor-pointer"
+                                                title="Copy markdown">
+                                                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        <?php endif; ?>
                                         <a href="../../<?php echo htmlspecialchars($upload->getRelativePath()); ?>"
                                             target="_blank"
                                             class="flex-1 inline-flex items-center justify-center p-1.5 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition no-underline"
@@ -380,6 +388,15 @@ function buildFolderUrl($folderId, $viewMode)
                                         <td class="px-6 py-3"><?php echo formatFileSize($upload->getSize()); ?></td>
                                         <td class="px-6 py-3">
                                             <div class="flex gap-2 justify-end">
+                                                <?php if (strpos($upload->getMimetype(), 'image/') === 0): ?>
+                                                    <button type="button"
+                                                        onclick="copyImageMarkdown('<?php echo htmlspecialchars($upload->getRelativePath(), ENT_QUOTES); ?>', '<?php echo htmlspecialchars($upload->getSlug(), ENT_QUOTES); ?>')"
+                                                        class="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition border-none cursor-pointer"
+                                                        title="Copy markdown">
+                                                        <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                                                        Markdown
+                                                    </button>
+                                                <?php endif; ?>
                                                 <a href="../../<?php echo htmlspecialchars($upload->getRelativePath()); ?>"
                                                     target="_blank"
                                                     class="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 transition">
@@ -440,8 +457,30 @@ function buildFolderUrl($folderId, $viewMode)
         <input type="hidden" name="folder_id" id="folderId">
     </form>
 
+    <script src="../../assets/js/easymde-media.js"></script>
     <script>
         lucide.createIcons();
+
+        function buildImageMarkdown(path, alt, linkUrl) {
+            const safeAlt = (alt || 'image').replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+            const imageMarkdown = `![${safeAlt}](${path})`;
+            if (linkUrl && linkUrl.trim()) {
+                return `[${imageMarkdown}](${linkUrl.trim()})`;
+            }
+            return imageMarkdown;
+        }
+
+        async function copyImageMarkdown(path, slug) {
+            const linkUrl = window.prompt('Optional link URL (leave empty for image only):', '') ?? '';
+            const markdown = buildImageMarkdown(path, slug, linkUrl);
+
+            try {
+                await navigator.clipboard.writeText(markdown);
+                alert('Markdown copied to clipboard.');
+            } catch (error) {
+                window.prompt('Copy this markdown:', markdown);
+            }
+        }
 
         function switchView(mode) {
             const params = new URLSearchParams(window.location.search);

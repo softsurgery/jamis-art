@@ -1,6 +1,19 @@
 <?php
 
-function markdownToHtml($markdown)
+function resolveMediaUrl($url, $basePath = '../../')
+{
+    if (preg_match('#^https?://#i', $url) || str_starts_with($url, '/')) {
+        return $url;
+    }
+
+    if (str_starts_with($url, 'storage/')) {
+        return $basePath . $url;
+    }
+
+    return $url;
+}
+
+function markdownToHtml($markdown, $mediaBasePath = '../../')
 {
     // Preserve existing HTML blocks
     $placeholders = [];
@@ -63,6 +76,40 @@ function markdownToHtml($markdown)
     $html = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $html);
     $html = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $html);
 
+    // Linked images: [![alt](src)](href)
+    $html = preg_replace_callback(
+        '/\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/',
+        function ($matches) use ($mediaBasePath) {
+            $alt = $matches[1];
+            $src = htmlspecialchars(resolveMediaUrl($matches[2], $mediaBasePath), ENT_QUOTES, 'UTF-8');
+            $href = htmlspecialchars(resolveMediaUrl($matches[3], $mediaBasePath), ENT_QUOTES, 'UTF-8');
+
+            return sprintf(
+                '<a href="%s" target="_blank" rel="noopener noreferrer" class="block my-4"><img src="%s" alt="%s" class="rounded-lg max-w-full h-auto border border-white/10" loading="lazy"></a>',
+                $href,
+                $src,
+                $alt
+            );
+        },
+        $html
+    );
+
+    // Images: ![alt](src)
+    $html = preg_replace_callback(
+        '/!\[([^\]]*)\]\(([^)]+)\)/',
+        function ($matches) use ($mediaBasePath) {
+            $alt = $matches[1];
+            $src = htmlspecialchars(resolveMediaUrl($matches[2], $mediaBasePath), ENT_QUOTES, 'UTF-8');
+
+            return sprintf(
+                '<img src="%s" alt="%s" class="rounded-lg max-w-full h-auto my-4 border border-white/10" loading="lazy">',
+                $src,
+                $alt
+            );
+        },
+        $html
+    );
+
     // Links
     $html = preg_replace(
         '/\[(.*?)\]\((.*?)\)/',
@@ -101,7 +148,7 @@ function markdownToHtml($markdown)
         $block = trim($block);
 
         if (
-            preg_match('/^<(h[1-6]|ul|ol|li|pre|blockquote|div|table)/i', $block)
+            preg_match('/^<(h[1-6]|ul|ol|li|pre|blockquote|div|table|img|a)/i', $block)
         ) {
             return $block;
         }

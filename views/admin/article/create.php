@@ -49,7 +49,9 @@ $artTypes = $artTypeController->getAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Article</title>
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <link rel="stylesheet" href="../../../assets/css/easymde-media.css">
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script src="../../../assets/js/easymde-media.js"></script>
     <script src="../../../assets/js/tailwind.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -187,9 +189,10 @@ $artTypes = $artTypeController->getAll();
     <script>
         lucide.createIcons();
 
-        const easyMDE = new EasyMDE({
+        initEasyMDEWithMedia({
             element: document.getElementById('content'),
-            spellChecker: false,
+            apiUrl: '../api/media.php',
+            previewBasePath: '../../../',
         });
     </script>
 </body>
