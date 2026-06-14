@@ -4,6 +4,7 @@ session_start();
 require_once __DIR__ . '/../../../lib/authHelper.php';
 require_once __DIR__ . '/../../../controllers/ArticleController.php';
 require_once __DIR__ . '/../../../controllers/ArtTypeController.php';
+require_once __DIR__ . '/../../../controllers/UploadController.php';
 
 requireAdmin();
 
@@ -34,14 +35,24 @@ if (!$id) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article && $authorId) {
     try {
+        $coverId = $article['cover'] ?? null;
+        if (isset($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
+            $mime = mime_content_type($_FILES['cover']['tmp_name']);
+            if (strpos($mime, 'image/') === 0) {
+                $upload = UploadController::uploadFile($_FILES['cover']);
+                $coverId = $upload->getId();
+            }
+        }
+
         $updatedArticle = new Article(
             $id,
             $_POST['title'],
             $_POST['description'],
             $_POST['content'],
-            $article['publishedAt'], // Keep original published date
+            $article['publishedAt'],
             $authorId,
             $_POST['variant'] ?? 'Interview',
+            $coverId,
             $_POST['artTypeId']
         );
         $articleController->update($updatedArticle);
@@ -53,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article && $authorId) {
 
 $artTypes = $artTypeController->getAll();
 
-// Convert datetime for input field
+$coverPreviewUrl = ($article && !empty($article['coverPath'])) ? '../../../' . $article['coverPath'] : '';
 $publishedAtValue = '';
 if ($article && isset($article['publishedAt'])) {
     $date = new DateTime($article['publishedAt']);
@@ -139,7 +150,7 @@ if ($article && isset($article['publishedAt'])) {
                             </div>
                         </div>
                     <?php else: ?>
-                        <form method="POST" class="space-y-6">
+                        <form method="POST" enctype="multipart/form-data" class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Title <span
                                         class="text-red-500">*</span></label>
@@ -160,7 +171,7 @@ if ($article && isset($article['publishedAt'])) {
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Content <span
                                         class="text-red-500">*</span></label>
-                                <textarea id="content" name="content" required placeholder="Full article content"
+                                <textarea id="content" name="content" placeholder="Full article content"
                                     class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition resize-none"
                                     rows="8"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
                                 <p class="mt-1 text-xs text-gray-500">The main body of the article.</p>
@@ -192,6 +203,15 @@ if ($article && isset($article['publishedAt'])) {
                                 </div>
                             </div>
 
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
+                                <img id="cover-preview" src="<?= htmlspecialchars($coverPreviewUrl) ?>" alt="Cover preview"
+                                    class="<?= $coverPreviewUrl ? '' : 'hidden' ?> mb-3 w-full max-w-xs aspect-video rounded-lg object-cover border border-gray-200 shadow-sm">
+                                <input type="file" name="cover" id="cover" accept="image/*"
+                                    class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
+                                <p class="mt-1 text-xs text-gray-500">Optional thumbnail shown in collection listings. Leave empty to keep the current cover.</p>
+                            </div>
+
                             <div class="pt-6 border-t border-gray-200 flex gap-3">
                                 <a href="../article.php"
                                     class="flex-1 inline-flex items-center justify-center px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition focus:ring-4 focus:ring-gray-200">
@@ -217,6 +237,15 @@ if ($article && isset($article['publishedAt'])) {
             element: document.getElementById('content'),
             apiUrl: '../api/media.php',
             previewBasePath: '../../../',
+        });
+
+        document.getElementById('cover').addEventListener('change', (e) => {
+            const preview = document.getElementById('cover-preview');
+            const file = e.target.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
+            }
         });
     </script>
 </body>

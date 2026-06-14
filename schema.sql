@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2026 at 02:24 PM
+-- Generation Time: Jun 14, 2026 at 04:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -58,6 +58,7 @@ CREATE TABLE `article` (
   `publishedAt` datetime NOT NULL,
   `authorId` int(11) NOT NULL,
   `variant` enum('Interview','Highlight','','') NOT NULL,
+  `cover` int(11) DEFAULT NULL,
   `artTypeId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -102,7 +103,7 @@ CREATE TABLE `upload` (
 CREATE TABLE `upload-group` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `parent` int(11) NOT NULL
+  `parent` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -139,7 +140,8 @@ ALTER TABLE `art-type`
 ALTER TABLE `article`
   ADD PRIMARY KEY (`id`),
   ADD KEY `artTypeId` (`artTypeId`),
-  ADD KEY `authorId` (`authorId`);
+  ADD KEY `authorId` (`authorId`),
+  ADD KEY `cover` (`cover`);
 
 --
 -- Indexes for table `location`
@@ -225,7 +227,8 @@ ALTER TABLE `art-type`
 --
 ALTER TABLE `article`
   ADD CONSTRAINT `article_ibfk_1` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `article_ibfk_2` FOREIGN KEY (`authorId`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `article_ibfk_2` FOREIGN KEY (`authorId`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `article_ibfk_3` FOREIGN KEY (`cover`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `location`

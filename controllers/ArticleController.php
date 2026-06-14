@@ -8,7 +8,10 @@ class ArticleController
     public function getAll()
     {
         global $pdo;
-        $sql = "SELECT * FROM article ORDER BY publishedAt DESC";
+        $sql = "SELECT article.*, upload.relativePath AS coverPath
+                FROM article
+                LEFT JOIN upload ON article.cover = upload.id
+                ORDER BY article.publishedAt DESC";
         try {
             $query = $pdo->query($sql);
             return $query->fetchAll(PDO::FETCH_ASSOC);
@@ -21,7 +24,10 @@ class ArticleController
     public function getById($id)
     {
         global $pdo;
-        $sql = "SELECT * FROM article WHERE id = :id";
+        $sql = "SELECT article.*, upload.relativePath AS coverPath
+                FROM article
+                LEFT JOIN upload ON article.cover = upload.id
+                WHERE article.id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':id' => $id]);
@@ -35,7 +41,11 @@ class ArticleController
     public function getByAuthorId($authorId)
     {
         global $pdo;
-        $sql = "SELECT * FROM article WHERE authorId = :authorId ORDER BY publishedAt DESC";
+        $sql = "SELECT article.*, upload.relativePath AS coverPath
+                FROM article
+                LEFT JOIN upload ON article.cover = upload.id
+                WHERE article.authorId = :authorId
+                ORDER BY article.publishedAt DESC";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':authorId' => $authorId]);
@@ -49,7 +59,11 @@ class ArticleController
     public function getByArtTypeId($artTypeId)
     {
         global $pdo;
-        $sql = "SELECT * FROM article WHERE artTypeId = :artTypeId ORDER BY publishedAt DESC";
+        $sql = "SELECT article.*, upload.relativePath AS coverPath
+                FROM article
+                LEFT JOIN upload ON article.cover = upload.id
+                WHERE article.artTypeId = :artTypeId
+                ORDER BY article.publishedAt DESC";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':artTypeId' => $artTypeId]);
@@ -63,8 +77,8 @@ class ArticleController
     public function save($article)
     {
         global $pdo;
-        $sql = "INSERT INTO article (title, description, content, publishedAt, authorId, variant, artTypeId)
-                VALUES (:title, :description, :content, :publishedAt, :authorId, :variant, :artTypeId)";
+        $sql = "INSERT INTO article (title, description, content, publishedAt, authorId, variant, cover, artTypeId)
+                VALUES (:title, :description, :content, :publishedAt, :authorId, :variant, :cover, :artTypeId)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
@@ -74,6 +88,7 @@ class ArticleController
                 ':publishedAt' => $article->getPublishedAt(),
                 ':authorId' => $article->getAuthorId(),
                 ':variant' => $article->getVariant(),
+                ':cover' => $article->getCover(),
                 ':artTypeId' => $article->getArtTypeId()
             ]);
             return $pdo->lastInsertId();
@@ -88,7 +103,7 @@ class ArticleController
         global $pdo;
         $sql = "UPDATE article 
                 SET title = :title, description = :description, content = :content, 
-                    publishedAt = :publishedAt, variant = :variant, artTypeId = :artTypeId
+                    publishedAt = :publishedAt, variant = :variant, cover = :cover, artTypeId = :artTypeId
                 WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
@@ -99,6 +114,7 @@ class ArticleController
                 ':content' => $article->getContent(),
                 ':publishedAt' => $article->getPublishedAt(),
                 ':variant' => $article->getVariant(),
+                ':cover' => $article->getCover(),
                 ':artTypeId' => $article->getArtTypeId()
             ]);
         } catch (Exception $e) {

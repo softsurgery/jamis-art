@@ -190,9 +190,12 @@
     window.initEasyMDEWithMedia = function (config) {
         const previewBasePath = config.previewBasePath || '../../../';
         const apiUrl = config.apiUrl;
+        const textarea = config.element;
+
+        textarea.removeAttribute('required');
 
         const easyMDE = new EasyMDE({
-            element: config.element,
+            element: textarea,
             spellChecker: false,
             renderingConfig: {
                 sanitizerFunction: function (renderedHtml) {
@@ -230,6 +233,17 @@
                 'guide',
             ],
         });
+
+        const form = textarea.closest('form');
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                easyMDE.codemirror.save();
+                if (!textarea.value.trim()) {
+                    event.preventDefault();
+                    easyMDE.codemirror.focus();
+                }
+            });
+        }
 
         return easyMDE;
     };

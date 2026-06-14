@@ -32,9 +32,18 @@ function renderArticle($article, $isLoggedIn)
                     </button>";
     }
 
+    $coverHtml = "<div class='w-full md:w-1/3 aspect-video bg-gray-700 rounded-lg flex-shrink-0'></div>";
+    if (!empty($article['coverPath'])) {
+        $coverUrl = htmlspecialchars('../../' . $article['coverPath']);
+        $coverHtml = "
+        <div class='w-full md:w-1/3 aspect-video bg-gray-700 rounded-lg flex-shrink-0 overflow-hidden'>
+            <img src='$coverUrl' alt='$title' class='w-full h-full object-cover'>
+        </div>";
+    }
+
     return "
     <article class='bg-gray-800/50 rounded-xl p-6 hover:bg-gray-800 transition-colors border border-white/5 flex flex-col md:flex-row gap-6 items-start'>
-        <div class='w-full md:w-1/3 aspect-video bg-gray-700 rounded-lg flex-shrink-0'></div>
+        $coverHtml
         <div class='flex-1'>
             <div class='flex justify-between items-start mb-2'>
                 <span class='text-xs font-semibold $variantColorClass uppercase tracking-wider'>" . strtoupper($variant) . "</span>

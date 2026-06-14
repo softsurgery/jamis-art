@@ -111,7 +111,29 @@ if ($artTypeId) {
                 <div class="mb-12">
                     <h2 class="text-2xl font-bold mb-6 border-b border-white/20 pb-2">Art Spotlights</h2>
                     <div class="flex overflow-x-auto gap-6 pb-4 snap-x">
-                        <?php for ($i = 1; $i <= 4; $i++): ?>
+                        <?php
+                        $spotlightArticles = array_values(array_filter($articles, fn($a) => !empty($a['coverPath'])));
+                        $spotlightArticles = array_slice($spotlightArticles, 0, 4);
+                        if (!empty($spotlightArticles)):
+                            foreach ($spotlightArticles as $spotArticle):
+                                $spotCover = htmlspecialchars('../../' . $spotArticle['coverPath']);
+                                $spotTitle = htmlspecialchars($spotArticle['title']);
+                                $spotId = htmlspecialchars($spotArticle['id']);
+                        ?>
+                            <a href="./read-article.php?id=<?= $spotId ?>"
+                                class="min-w-[250px] md:min-w-[300px] h-40 rounded-lg snap-center border border-white/5 relative group cursor-pointer overflow-hidden block">
+                                <img src="<?= $spotCover ?>" alt="<?= $spotTitle ?>"
+                                    class="absolute inset-0 w-full h-full object-cover">
+                                <div
+                                    class="absolute inset-0 bg-black/40 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="text-white font-bold text-sm"><?= $spotTitle ?></span>
+                                </div>
+                            </a>
+                        <?php
+                            endforeach;
+                        else:
+                            for ($i = 1; $i <= 4; $i++):
+                        ?>
                             <div
                                 class="min-w-[250px] md:min-w-[300px] h-40 bg-gray-800 rounded-lg snap-center flex items-center justify-center border border-white/5 relative group cursor-pointer overflow-hidden">
                                 <span class="text-gray-500 group-hover:opacity-0 transition-opacity">Placeholder <?= $i ?></span>
@@ -120,7 +142,10 @@ if ($artTypeId) {
                                     <span class="text-red-400 font-bold">View Art</span>
                                 </div>
                             </div>
-                        <?php endfor; ?>
+                        <?php
+                            endfor;
+                        endif;
+                        ?>
                     </div>
                 </div>
             <?php endif; ?>

@@ -9,9 +9,10 @@ class Article
     private $publishedAt;
     private $authorId;
     private $variant;
+    private $cover;
     private $artTypeId;
 
-    public function __construct($id, $title, $description, $content, $publishedAt, $authorId, $variant, $artTypeId)
+    public function __construct($id, $title, $description, $content, $publishedAt, $authorId, $variant, $cover, $artTypeId)
     {
         $this->id = $id;
         $this->title = $title;
@@ -21,6 +22,7 @@ class Article
         $this->authorId = $authorId;
         $this->variant = $variant;
         $this->description = $description;
+        $this->cover = $cover;
         $this->artTypeId = $artTypeId;
     }
 
@@ -57,6 +59,11 @@ class Article
     public function getVariant()
     {
         return $this->variant;
+    }
+
+    public function getCover()
+    {
+        return $this->cover;
     }
 
     public function getArtTypeId()
@@ -97,6 +104,11 @@ class Article
     public function setVariant($variant)
     {
         $this->variant = $variant;
+    }
+
+    public function setCover($cover)
+    {
+        $this->cover = $cover;
     }
 
     public function setArtTypeId($artTypeId)
