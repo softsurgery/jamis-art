@@ -3,10 +3,12 @@ session_start();
 require_once __DIR__ . '/../../lib/authHelper.php';
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
 require_once __DIR__ . '/../../controllers/UploadController.php';
+require_once __DIR__ . '/../../constants/upload-group-map.php';
 
 requireAdmin();
 
 $controller = new ArtTypeController();
+$artTypeGroupId = getGroupIdByName("art-type");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
@@ -17,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $mime = mime_content_type($_FILES['image']['tmp_name']);
                 if (strpos($mime, 'image/') === 0) {
-                    $upload = UploadController::uploadFile($_FILES['image']);
+                    $upload = UploadController::uploadFile($_FILES['image'], false, $artTypeGroupId);
                     $uploadId = $upload->getId();
                 }
             }
@@ -30,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $mime = mime_content_type($_FILES['image']['tmp_name']);
                 if (strpos($mime, 'image/') === 0) {
-                    $upload = UploadController::uploadFile($_FILES['image']);
+                    $upload = UploadController::uploadFile($_FILES['image'], false, $artTypeGroupId);
                     $uploadId = $upload->getId();
                 }
             } else {
