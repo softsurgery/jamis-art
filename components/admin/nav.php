@@ -46,6 +46,12 @@ function navLayout($name, $path = "", $dark = false)
             "route" => "views/admin/files.php",
         ],
         [
+            "icon" => "message-square",
+            "name" => "support-messages",
+            "label" => "Support",
+            "route" => "views/admin/support-messages.php",
+        ],
+        [
             "icon" => "settings",
             "name" => "settings",
             "label" => "Settings",

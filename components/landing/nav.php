@@ -17,6 +17,11 @@ function landingNavLayout($name, $isLoggedIn = false, $path = "", $dark = true)
             'label' => 'Maps',
             'name' => 'maps',
             'route' => '/views/landing/map.php'
+        ],
+        [
+            'label' => "Contact Us",
+            'name' => 'contact-us',
+            'route' => '/views/landing/contact.php'
         ]
     );
 
