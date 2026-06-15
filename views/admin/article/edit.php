@@ -204,6 +204,8 @@ if ($article && isset($article['publishedAt'])) {
                                         class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
                                         <option value="Interview" <?= ($article['variant'] ?? '') === 'Interview' ? 'selected' : '' ?>>Interview</option>
                                         <option value="Highlight" <?= ($article['variant'] ?? '') === 'Highlight' ? 'selected' : '' ?>>Highlight</option>
+                                        <option value="History" <?= ($article['variant'] ?? '') === 'History' ? 'selected' : '' ?>>History</option>
+                                        <option value="Technique" <?= ($article['variant'] ?? '') === 'Technique' ? 'selected' : '' ?>>Technique</option>
                                     </select>
                                 </div>
                             </div>

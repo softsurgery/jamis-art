@@ -179,6 +179,8 @@ $artTypes = $artTypeController->getAll();
                                     class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
                                     <option value="Interview">Interview</option>
                                     <option value="Highlight">Highlight</option>
+                                    <option value="History">History</option>
+                                    <option value="Technique">Technique</option>
                                 </select>
                             </div>
 

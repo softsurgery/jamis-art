@@ -26,7 +26,13 @@ if ($artTypeId) {
         }
     }
     // Fetch articles for this art type
-    $articles = $articleController->getByArtTypeId($artTypeId);
+    $limit = 5;
+    $articles = $articleController->getFilteredArticles($artTypeId, '', 'All', 0, $limit + 1);
+    $hasMoreArticles = count($articles) > $limit;
+    if ($hasMoreArticles) {
+        array_pop($articles);
+    }
+
     $resources = $resourceController->getAllByArtType($artTypeId);
 }
 ?>
@@ -163,7 +169,7 @@ if ($artTypeId) {
                         <h2 class="text-2xl font-bold">Featured Articles</h2>
                         <div class="flex items-center gap-2 w-full md:w-auto">
                             <div class="relative w-full md:w-64">
-                                <input type="text" placeholder="Search articles..."
+                                <input type="text" id="search-input" placeholder="Search articles..."
                                     class="w-full bg-gray-800/50 border border-white/10 rounded-full py-1.5 pl-8 pr-3 text-sm focus:outline-none focus:border-red-500">
                                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -182,30 +188,31 @@ if ($artTypeId) {
                         </div>
                     </div>
 
-                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                        <button
-                            class="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-medium whitespace-nowrap">All</button>
-                        <button
-                            class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-xs font-medium border border-white/5 whitespace-nowrap transition-colors">History</button>
-                        <button
-                            class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-xs font-medium border border-white/5 whitespace-nowrap transition-colors">Technique</button>
-                        <button
-                            class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-xs font-medium border border-white/5 whitespace-nowrap transition-colors">Interviews</button>
+                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide" id="filters-container">
+                        <?php
+                        $filters = array("All", "History", "Technique", "Interview", "Highlight");
+                        foreach ($filters as $filter) {
+                            $activeClass = $filter === "All" ? "bg-white text-black" : "bg-gray-800 text-gray-300 hover:bg-gray-700";
+                            echo "<button class='filter-btn px-3 py-1 rounded-full text-xs font-medium border border-white/5 whitespace-nowrap transition-colors $activeClass' data-filter='$filter'>$filter</button>";
+                        }
+                        ?>
                     </div>
 
-                    <?php
-                    if (!empty($articles)) {
-                        foreach ($articles as $article) {
-                            echo renderArticle($article, $isLoggedIn);
+                    <div id="articles-container" class="space-y-4">
+                        <?php
+                        if (!empty($articles)) {
+                            foreach ($articles as $article) {
+                                echo renderArticle($article, $isLoggedIn);
+                            }
+                        } else {
+                            echo '<div class="bg-gray-800/50 rounded-xl p-8 text-center border border-white/5 w-full"><p class="text-gray-400">No articles found for this collection.</p></div>';
                         }
-                    } else {
-                        echo '<div class="bg-gray-800/50 rounded-xl p-8 text-center border border-white/5"><p class="text-gray-400">No articles found for this collection.</p></div>';
-                    }
-                    ?>
+                        ?>
+                    </div>
 
                     <div class="flex justify-center mt-6">
-                        <button
-                            class="px-6 py-2 bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 rounded-full text-sm font-medium transition-all duration-300">
+                        <button id="load-more-btn"
+                            class="px-6 py-2 bg-transparent border border-white/20 hover:border-white/50 hover:bg-white/5 rounded-full text-sm font-medium transition-all duration-300 <?= $hasMoreArticles ? '' : 'hidden' ?>">
                             Load More Articles
                         </button>
                     </div>
@@ -261,7 +268,8 @@ if ($artTypeId) {
 
                     <div class="bg-gradient-to-br from-red-600/20 to-purple-600/20 rounded-xl p-6 border border-red-500/20">
                         <h3 class="font-bold text-lg mb-2">Subscribe for Updates</h3>
-                        <p class="text-sm text-gray-400 mb-4">Get the latest articles and collection additions straight to
+                        <p class="text-sm text-gray-400 mb-4">Get the latest articles and collection additions straight
+                            to
                             your inbox.</p>
                         <form class="flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Subscribed!');">
                             <input type="email" placeholder="Your email address"
@@ -296,6 +304,97 @@ if ($artTypeId) {
                     <?php endforeach; ?>
                 </div>
             </section>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const searchInput = document.getElementById('search-input');
+                    const filterBtns = document.querySelectorAll('.filter-btn');
+                    const articlesContainer = document.getElementById('articles-container');
+                    const loadMoreBtn = document.getElementById('load-more-btn');
+
+                    let currentSearch = '';
+                    let currentFilter = 'All';
+                    let currentOffset = <?= count($articles) ?>;
+                    const limit = 5;
+                    const artTypeId = <?= json_encode($artTypeId) ?>;
+
+                    let searchTimeout = null;
+
+                    const fetchArticles = async (isLoadMore = false) => {
+                        try {
+                            const params = new URLSearchParams({
+                                type: artTypeId,
+                                search: currentSearch,
+                                filter: currentFilter,
+                                offset: currentOffset,
+                                limit: limit
+                            });
+
+                            const response = await fetch(`../../api/articles.php?${params.toString()}`);
+                            const data = await response.json();
+
+                            if (!isLoadMore) {
+                                articlesContainer.innerHTML = data.html;
+                            } else {
+                                articlesContainer.insertAdjacentHTML('beforeend', data.html);
+                            }
+
+                            if (data.hasMore) {
+                                loadMoreBtn.classList.remove('hidden');
+                                currentOffset += limit;
+                            } else {
+                                loadMoreBtn.classList.add('hidden');
+                            }
+                        } catch (error) {
+                            console.error('Error fetching articles:', error);
+                        }
+                    };
+
+                    // Search listener with debounce
+                    if (searchInput) {
+                        searchInput.addEventListener('input', (e) => {
+                            clearTimeout(searchTimeout);
+                            searchTimeout = setTimeout(() => {
+                                currentSearch = e.target.value.trim();
+                                currentOffset = 0;
+                                fetchArticles(false);
+                            }, 300);
+                        });
+                    }
+
+                    // Filter listeners
+                    filterBtns.forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            // Update active styles
+                            filterBtns.forEach(b => {
+                                b.classList.remove('bg-white', 'text-black');
+                                b.classList.add('bg-gray-800', 'text-gray-300', 'hover:bg-gray-700');
+                            });
+                            e.target.classList.remove('bg-gray-800', 'text-gray-300', 'hover:bg-gray-700');
+                            e.target.classList.add('bg-white', 'text-black');
+
+                            currentFilter = e.target.getAttribute('data-filter');
+                            currentOffset = 0;
+                            fetchArticles(false);
+                        });
+                    });
+
+                    // Infinite scroll setup using IntersectionObserver
+                    if (loadMoreBtn) {
+                        loadMoreBtn.addEventListener('click', () => {
+                            fetchArticles(true);
+                        });
+
+                        const observer = new IntersectionObserver((entries) => {
+                            if (entries[0].isIntersecting && !loadMoreBtn.classList.contains('hidden')) {
+                                fetchArticles(true);
+                            }
+                        }, { rootMargin: '100px' });
+
+                        observer.observe(loadMoreBtn);
+                    }
+                });
+            </script>
 
         <?php else: ?>
             <!-- Global Collection View (When no type is specified) -->

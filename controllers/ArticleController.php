@@ -134,4 +134,54 @@ class ArticleController
             die("Erreur lors de la suppression : " . $e->getMessage());
         }
     }
+
+    // ✅ Get filtered articles with pagination
+    public function getFilteredArticles($artTypeId, $search, $filter, $offset, $limit)
+    {
+        global $pdo;
+
+        $conditions = [];
+        $params = [];
+
+        if (!empty($artTypeId)) {
+            $conditions[] = 'article.artTypeId = :artTypeId';
+            $params[':artTypeId'] = $artTypeId;
+        }
+
+        if (!empty($search)) {
+            $conditions[] = '(article.title LIKE :search OR article.description LIKE :search OR article.content LIKE :search)';
+            $params[':search'] = '%' . $search . '%';
+        }
+
+        if (!empty($filter) && $filter !== 'All') {
+            $conditions[] = '(article.variant = :filter)';
+            $params[':filter'] = $filter;
+        }
+
+        $whereClause = count($conditions) > 0 ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        $sql = "SELECT article.*, upload.relativePath AS coverPath
+                FROM article
+                LEFT JOIN upload ON article.cover = upload.id
+                $whereClause
+                ORDER BY article.publishedAt DESC
+                LIMIT :limit OFFSET :offset";
+
+        try {
+            $query = $pdo->prepare($sql);
+
+            // Bind parameters
+            foreach ($params as $key => $value) {
+                $query->bindValue($key, $value);
+            }
+
+            $query->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+            $query->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            die("Erreur : " . $e->getMessage());
+        }
+    }
 }
