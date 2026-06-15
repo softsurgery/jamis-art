@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2026 at 04:11 PM
+-- Generation Time: Jun 15, 2026 at 09:31 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,10 +39,10 @@ CREATE TABLE `art-type` (
 --
 
 INSERT INTO `art-type` (`id`, `label`, `colorValue`, `uploadId`) VALUES
-(1, 'Painting', '#5b7e3c', 3),
-(2, 'Music', '#ffd65a', 4),
-(3, 'Dance', '#ff9d23', 5),
-(4, 'Acting', '#ea5252', 6);
+(1, 'Painting', '#5b7e3c', 12),
+(2, 'Music', '#ffd65a', 13),
+(3, 'Dance', '#ff9d23', 14),
+(4, 'Acting', '#ea5252', 15);
 
 -- --------------------------------------------------------
 
@@ -57,7 +57,7 @@ CREATE TABLE `article` (
   `content` text NOT NULL,
   `publishedAt` datetime NOT NULL,
   `authorId` int(11) NOT NULL,
-  `variant` enum('Interview','Highlight','','') NOT NULL,
+  `variant` enum('Interview','Highlight','Technique','History') NOT NULL,
   `cover` int(11) DEFAULT NULL,
   `artTypeId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -75,6 +75,35 @@ CREATE TABLE `location` (
   `label` varchar(100) NOT NULL,
   `description` text NOT NULL,
   `artTypeId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resources`
+--
+
+CREATE TABLE `resources` (
+  `id` int(11) NOT NULL,
+  `uploadId` int(11) NOT NULL,
+  `artTypeId` int(11) NOT NULL,
+  `label` varchar(255) NOT NULL,
+  `description` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `support-messages`
+--
+
+CREATE TABLE `support-messages` (
+  `id` int(11) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `userId` int(11) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `artTypeId` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -105,6 +134,17 @@ CREATE TABLE `upload-group` (
   `name` varchar(255) NOT NULL,
   `parent` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `upload-group`
+--
+
+INSERT INTO `upload-group` (`id`, `name`, `parent`) VALUES
+(0, 'ROOT', NULL),
+(1, 'art-type', 0),
+(2, 'articles', 0),
+(3, 'resources', 0),
+(5, 'profiles', 0);
 
 -- --------------------------------------------------------
 
@@ -151,6 +191,22 @@ ALTER TABLE `location`
   ADD KEY `artTypeId` (`artTypeId`);
 
 --
+-- Indexes for table `resources`
+--
+ALTER TABLE `resources`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `uploadId` (`uploadId`),
+  ADD KEY `artTypeId` (`artTypeId`);
+
+--
+-- Indexes for table `support-messages`
+--
+ALTER TABLE `support-messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `userId` (`userId`),
+  ADD KEY `artTypeId` (`artTypeId`);
+
+--
 -- Indexes for table `upload`
 --
 ALTER TABLE `upload`
@@ -180,7 +236,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `art-type`
 --
 ALTER TABLE `art-type`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `article`
@@ -195,6 +251,18 @@ ALTER TABLE `location`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `resources`
+--
+ALTER TABLE `resources`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `support-messages`
+--
+ALTER TABLE `support-messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `upload`
 --
 ALTER TABLE `upload`
@@ -204,7 +272,7 @@ ALTER TABLE `upload`
 -- AUTO_INCREMENT for table `upload-group`
 --
 ALTER TABLE `upload-group`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -235,6 +303,20 @@ ALTER TABLE `article`
 --
 ALTER TABLE `location`
   ADD CONSTRAINT `location_ibfk_1` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `resources`
+--
+ALTER TABLE `resources`
+  ADD CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`uploadId`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `resources_ibfk_2` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `support-messages`
+--
+ALTER TABLE `support-messages`
+  ADD CONSTRAINT `support-messages_ibfk_1` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `support-messages_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `upload`
