@@ -1,9 +1,13 @@
 <?php
 
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "jemis-art";
+require_once "lib/Env.php";
+
+Env::load(__DIR__ . '/.env');
+
+$host = Env::get('DB_HOST');
+$user = Env::get('DB_USER');
+$pass = Env::get('DB_PASS');
+$db = Env::get('DB_NAME');
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
