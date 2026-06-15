@@ -3,6 +3,8 @@ session_start();
 require_once __DIR__ . "/../../controllers/AuthController.php";
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
 require_once __DIR__ . '/../../controllers/ArticleController.php';
+require_once __DIR__ . '/../../controllers/ResourceController.php';
+require_once __DIR__ . '/../../controllers/UploadController.php';
 require_once __DIR__ . '/collection/article.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
@@ -10,9 +12,11 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $artTypeId = $_GET['type'] ?? null;
 $artTypeController = new ArtTypeController();
 $articleController = new ArticleController();
+$resourceController = new ResourceController();
 $artType = null;
 $allArtTypes = $artTypeController->getAll();
 $articles = [];
+$resources = [];
 
 if ($artTypeId) {
     foreach ($allArtTypes as $type) {
@@ -23,6 +27,7 @@ if ($artTypeId) {
     }
     // Fetch articles for this art type
     $articles = $articleController->getByArtTypeId($artTypeId);
+    $resources = $resourceController->getAllByArtType($artTypeId);
 }
 ?>
 
@@ -110,7 +115,7 @@ if ($artTypeId) {
                 <!-- Standard Carousel/Grid Layout for other types -->
                 <div class="mb-12">
                     <h2 class="text-2xl font-bold mb-6 border-b border-white/20 pb-2">Art Spotlights</h2>
-                    <div class="flex overflow-x-auto gap-6 pb-4 snap-x">
+                    <div class="flex overflow-x-auto no-scrollbar gap-6 pb-4 snap-x">
                         <?php
                         $spotlightArticles = array_values(array_filter($articles, fn($a) => !empty($a['coverPath'])));
                         $spotlightArticles = array_slice($spotlightArticles, 0, 4);
@@ -119,30 +124,30 @@ if ($artTypeId) {
                                 $spotCover = htmlspecialchars('../../' . $spotArticle['coverPath']);
                                 $spotTitle = htmlspecialchars($spotArticle['title']);
                                 $spotId = htmlspecialchars($spotArticle['id']);
-                        ?>
-                            <a href="./read-article.php?id=<?= $spotId ?>"
-                                class="min-w-[250px] md:min-w-[300px] h-40 rounded-lg snap-center border border-white/5 relative group cursor-pointer overflow-hidden block">
-                                <img src="<?= $spotCover ?>" alt="<?= $spotTitle ?>"
-                                    class="absolute inset-0 w-full h-full object-cover">
-                                <div
-                                    class="absolute inset-0 bg-black/40 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span class="text-white font-bold text-sm"><?= $spotTitle ?></span>
-                                </div>
-                            </a>
-                        <?php
+                                ?>
+                                <a href="./read-article.php?id=<?= $spotId ?>"
+                                    class="min-w-[250px] md:min-w-[300px] h-40 rounded-lg snap-center border border-white/5 relative group cursor-pointer overflow-hidden block">
+                                    <img src="<?= $spotCover ?>" alt="<?= $spotTitle ?>"
+                                        class="absolute inset-0 w-full h-full object-cover">
+                                    <div
+                                        class="absolute inset-0 bg-black/40 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span class="text-white font-bold text-sm"><?= $spotTitle ?></span>
+                                    </div>
+                                </a>
+                                <?php
                             endforeach;
                         else:
                             for ($i = 1; $i <= 4; $i++):
-                        ?>
-                            <div
-                                class="min-w-[250px] md:min-w-[300px] h-40 bg-gray-800 rounded-lg snap-center flex items-center justify-center border border-white/5 relative group cursor-pointer overflow-hidden">
-                                <span class="text-gray-500 group-hover:opacity-0 transition-opacity">Placeholder <?= $i ?></span>
+                                ?>
                                 <div
-                                    class="absolute inset-0 bg-red-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span class="text-red-400 font-bold">View Art</span>
+                                    class="min-w-[250px] md:min-w-[300px] h-40 bg-gray-800 rounded-lg snap-center flex items-center justify-center border border-white/5 relative group cursor-pointer overflow-hidden">
+                                    <span class="text-gray-500 group-hover:opacity-0 transition-opacity">Placeholder <?= $i ?></span>
+                                    <div
+                                        class="absolute inset-0 bg-red-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span class="text-red-400 font-bold">View Art</span>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php
+                                <?php
                             endfor;
                         endif;
                         ?>
@@ -214,46 +219,27 @@ if ($artTypeId) {
                             Useful Resources
                         </h2>
                         <ul class="space-y-4">
-                            <li>
-                                <a href="#" class="block group">
-                                    <h4 class="font-medium group-hover:text-red-400 transition-colors">Beginner's Guide</h4>
-                                    <p class="text-sm text-gray-500">Essential reading for newcomers.</p>
-                                </a>
-                            </li>
-                            <li>
-                                <?php if ($isLoggedIn): ?>
-                                    <a href="#" class="block group">
-                                        <h4 class="font-medium group-hover:text-red-400 transition-colors">Digital Archive <span
-                                                class="bg-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded ml-2 align-middle">Member</span>
-                                        </h4>
-                                        <p class="text-sm text-gray-500">Thousands of high-res images.</p>
-                                    </a>
-                                <?php else: ?>
-                                    <div class="block opacity-50 cursor-not-allowed group relative pb-2"
-                                        title="Sign in to access">
-                                        <h4 class="font-medium">Digital Archive <span
-                                                class="bg-gray-700 text-gray-400 text-[10px] px-1.5 py-0.5 rounded ml-2 align-middle">Locked</span>
-                                        </h4>
-                                        <p class="text-sm text-gray-500">Thousands of high-res images.</p>
-                                        <a href="../auth/sign-in.php"
-                                            class="absolute inset-0 z-10 hidden group-hover:flex items-center justify-center bg-gray-900/80 text-white text-sm font-medium rounded backdrop-blur-sm">Sign
-                                            In Required</a>
-                                    </div>
-                                <?php endif; ?>
-                            </li>
-                            <li>
-                                <a href="#" class="block group">
-                                    <h4 class="font-medium group-hover:text-red-400 transition-colors">Community Forums</h4>
-                                    <p class="text-sm text-gray-500">Connect with other enthusiasts.</p>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="block group">
-                                    <h4 class="font-medium group-hover:text-red-400 transition-colors">Exhibition Calendar
-                                    </h4>
-                                    <p class="text-sm text-gray-500">Find events near you.</p>
-                                </a>
-                            </li>
+                            <?php if (!empty($resources)): ?>
+                                <?php foreach ($resources as $res):
+                                    $upload = UploadController::getFileByIdOrSlug($res['uploadId']);
+                                    $fileUrl = $upload ? '../../' . $upload->getRelativePath() : '#';
+                                    ?>
+                                    <li>
+                                        <a href="<?= htmlspecialchars($fileUrl) ?>" target="_blank" class="block group">
+                                            <h4 class="font-medium group-hover:text-red-400 transition-colors">
+                                                <?= htmlspecialchars($res['label']) ?>
+                                            </h4>
+                                            <?php if (!empty($res['description'])): ?>
+                                                <p class="text-sm text-gray-500"><?= htmlspecialchars($res['description']) ?></p>
+                                            <?php endif; ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li>
+                                    <p class="text-sm text-gray-500">No resources available for this collection yet.</p>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
 

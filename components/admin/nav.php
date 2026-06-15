@@ -34,6 +34,12 @@ function navLayout($name, $path = "", $dark = false)
             "route" => "views/admin/article.php",
         ],
         [
+            "icon" => "image",
+            "name" => "resources",
+            "label" => "Resources",
+            "route" => "views/admin/resources.php",
+        ],
+        [
             "icon" => "file-text",
             "name" => "files",
             "label" => "Files",
