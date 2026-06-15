@@ -79,3 +79,15 @@ body {
   border-color: #ff3b30;
   box-shadow: 0 0 0 2px rgba(255, 59, 48, 0.2);
 }
+
+/* Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
