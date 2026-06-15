@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../../lib/authHelper.php';
 require_once __DIR__ . '/../../../controllers/ArticleController.php';
 require_once __DIR__ . '/../../../controllers/ArtTypeController.php';
 require_once __DIR__ . '/../../../controllers/UploadController.php';
+require_once __DIR__ . '/../../../constants/upload-group-map.php';
+
 
 requireAdmin();
 
@@ -15,11 +17,14 @@ $error = '';
 $success = false;
 $article = null;
 
+
 // Get current user from session
 $authorId = $_SESSION['user_id'] ?? null;
 if (!$authorId) {
     $error = 'User session not found. Please log in again.';
 }
+
+$articleUploadGroupId = getGroupIdByName("articles");
 
 // Get article ID from query parameter
 $id = $_GET['id'] ?? null;
@@ -39,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $article && $authorId) {
         if (isset($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
             $mime = mime_content_type($_FILES['cover']['tmp_name']);
             if (strpos($mime, 'image/') === 0) {
-                $upload = UploadController::uploadFile($_FILES['cover']);
+                $upload = UploadController::uploadFile($_FILES['cover'], false, $articleUploadGroupId);
                 $coverId = $upload->getId();
             }
         }
@@ -209,7 +214,8 @@ if ($article && isset($article['publishedAt'])) {
                                     class="<?= $coverPreviewUrl ? '' : 'hidden' ?> mb-3 w-full max-w-xs aspect-video rounded-lg object-cover border border-gray-200 shadow-sm">
                                 <input type="file" name="cover" id="cover" accept="image/*"
                                     class="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600/50 focus:border-indigo-600 transition">
-                                <p class="mt-1 text-xs text-gray-500">Optional thumbnail shown in collection listings. Leave empty to keep the current cover.</p>
+                                <p class="mt-1 text-xs text-gray-500">Optional thumbnail shown in collection listings. Leave
+                                    empty to keep the current cover.</p>
                             </div>
 
                             <div class="pt-6 border-t border-gray-200 flex gap-3">

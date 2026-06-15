@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../lib/authHelper.php';
 require_once __DIR__ . '/../../../controllers/ArticleController.php';
 require_once __DIR__ . '/../../../controllers/ArtTypeController.php';
 require_once __DIR__ . '/../../../controllers/UploadController.php';
+require_once __DIR__ . '/../../../constants/upload-group-map.php';
 
 requireAdmin();
 
@@ -20,13 +21,15 @@ if (!$authorId) {
     $error = 'User session not found. Please log in again.';
 }
 
+$articleUploadGroupId = getGroupIdByName("articles");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authorId) {
     try {
         $coverId = null;
         if (isset($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
             $mime = mime_content_type($_FILES['cover']['tmp_name']);
             if (strpos($mime, 'image/') === 0) {
-                $upload = UploadController::uploadFile($_FILES['cover']);
+                $upload = UploadController::uploadFile($_FILES['cover'], false, $articleUploadGroupId);
                 $coverId = $upload->getId();
             }
         }
