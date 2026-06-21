@@ -338,11 +338,10 @@ $partners = $partnerController->getAll();
     </section>
 
     <!-- FOOTER -->
-    <footer class="border-t border-white/10 py-8 text-center text-gray-400">
-        © <?php
-        echo date("Y");
-        ?> ArtVerse — Create. Resist. Express.
-    </footer>
+    <?php
+    require_once __DIR__ . '/components/landing/footer.php';
+    echo landingFooterLayout('.');
+    ?>
     <script>
         function redirectToSignIn() {
             window.location.href = 'views/auth/sign-in.php';
