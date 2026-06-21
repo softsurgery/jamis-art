@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 21, 2026 at 12:08 PM
+-- Generation Time: Jun 21, 2026 at 02:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -65,6 +65,19 @@ CREATE TABLE `article` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `counter`
+--
+
+CREATE TABLE `counter` (
+  `id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `entryId` int(11) NOT NULL,
+  `count` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `event`
 --
 
@@ -75,7 +88,21 @@ CREATE TABLE `event` (
   `description` text NOT NULL,
   `markdown` text NOT NULL,
   `artTypeId` int(11) NOT NULL,
-  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP
+  `createdAt` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `event-participants`
+--
+
+CREATE TABLE `event-participants` (
+  `id` int(11) NOT NULL,
+  `eventId` int(11) NOT NULL,
+  `userId` int(11) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `createdAt` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -132,7 +159,7 @@ CREATE TABLE `support-messages` (
   `userId` int(11) DEFAULT NULL,
   `email` varchar(255) NOT NULL,
   `artTypeId` int(11) DEFAULT NULL,
-  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP
+  `createdAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -174,7 +201,8 @@ INSERT INTO `upload-group` (`id`, `name`, `parent`) VALUES
 (2, 'articles', 0),
 (3, 'resources', 0),
 (4, 'profiles', 0),
-(5, 'partners', 0);
+(5, 'partners', 0),
+(6, 'events', 0);
 
 -- --------------------------------------------------------
 
@@ -214,12 +242,27 @@ ALTER TABLE `article`
   ADD KEY `cover` (`cover`);
 
 --
+-- Indexes for table `counter`
+--
+ALTER TABLE `counter`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `type_entry` (`type`,`entryId`);
+
+--
 -- Indexes for table `event`
 --
 ALTER TABLE `event`
   ADD PRIMARY KEY (`id`),
   ADD KEY `uploadId` (`uploadId`),
   ADD KEY `artTypeId` (`artTypeId`);
+
+--
+-- Indexes for table `event-participants`
+--
+ALTER TABLE `event-participants`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `eventId` (`eventId`),
+  ADD KEY `userId` (`userId`);
 
 --
 -- Indexes for table `location`
@@ -250,23 +293,6 @@ ALTER TABLE `support-messages`
   ADD PRIMARY KEY (`id`),
   ADD KEY `userId` (`userId`),
   ADD KEY `artTypeId` (`artTypeId`);
-
---
--- Table structure for table `counter`
---
-CREATE TABLE `counter` (
-  `id` int(11) NOT NULL,
-  `type` varchar(50) NOT NULL,
-  `entryId` int(11) NOT NULL,
-  `count` int(11) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for table `counter`
---
-ALTER TABLE `counter`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `type_entry` (`type`, `entryId`);
 
 --
 -- Indexes for table `upload`
@@ -307,9 +333,21 @@ ALTER TABLE `article`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `counter`
+--
+ALTER TABLE `counter`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `event`
 --
 ALTER TABLE `event`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `event-participants`
+--
+ALTER TABLE `event-participants`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -334,12 +372,6 @@ ALTER TABLE `resources`
 -- AUTO_INCREMENT for table `support-messages`
 --
 ALTER TABLE `support-messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `counter`
---
-ALTER TABLE `counter`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -384,6 +416,13 @@ ALTER TABLE `article`
 ALTER TABLE `event`
   ADD CONSTRAINT `event_ibfk_1` FOREIGN KEY (`uploadId`) REFERENCES `upload` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `event_ibfk_2` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `event-participants`
+--
+ALTER TABLE `event-participants`
+  ADD CONSTRAINT `fk_event_participant` FOREIGN KEY (`eventId`) REFERENCES `event` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_user_participant` FOREIGN KEY (`userId`) REFERENCES `user` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `location`
