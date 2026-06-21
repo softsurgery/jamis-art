@@ -31,9 +31,9 @@ $isLoggedIn = isset($_SESSION['user_id']);
     </nav>
 
     <!-- HERO SECTION -->
-    <section class="hero-bg min-h-screen flex items-center">
+    <section class="hero-bg min-h-screen flex items-center py-20 lg:py-0">
 
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center w-full">
 
             <!-- LEFT -->
             <div>
@@ -53,24 +53,46 @@ $isLoggedIn = isset($_SESSION['user_id']);
                 </p>
 
                 <div class="flex gap-4">
-                    <button class="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-full font-semibold transition">
+                    <button
+                        class="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-full font-semibold transition cursor-pointer">
                         Enter The House
                     </button>
 
                     <button
-                        class="border border-white/30 hover:bg-white hover:text-black px-8 py-4 rounded-full font-semibold transition">
+                        class="border border-white/30 hover:bg-white hover:text-black px-8 py-4 rounded-full font-semibold transition cursor-pointer">
                         Explore Artists
                     </button>
                 </div>
             </div>
 
             <!-- RIGHT -->
-            <div class="relative hidden lg:block">
+            <div class="relative flex justify-center items-center mt-12 lg:mt-0">
 
-                <div class="absolute -top-10 -left-10 w-40 h-40 bg-red-600 rounded-full blur-[120px] opacity-50"></div>
+                <div class="absolute w-72 h-72 bg-red-600 rounded-full blur-[150px] opacity-30 pointer-events-none">
+                </div>
 
-                <img src="assets/img/cover.avif" alt="Hero Image"
-                    class="rounded-[40px] shadow-2xl border border-white/10" />
+                <!-- Orbiting Animation Container -->
+                <div class="orbit-container">
+                    <!-- Ambient 3D Glowing Rings (No static resist text) -->
+                    <div class="orbit-glow-ring ring-1"></div>
+                    <div class="orbit-glow-ring ring-2"></div>
+                    <div class="orbit-glow-ring ring-3"></div>
+
+                    <!-- Orbiting Eyes with color-coded glows -->
+                    <div class="orbit-eye-wrapper" style="--delay: 0s; --glow-color: #ff5e3a;">
+                        <img src="assets/img/eyes/eye1.png" alt="Creative Vision 1" class="orbit-eye" />
+                    </div>
+                    <div class="orbit-eye-wrapper" style="--delay: -4s; --glow-color: #00bfff;">
+                        <img src="assets/img/eyes/eye2.png" alt="Creative Vision 2" class="orbit-eye" />
+                    </div>
+                    <div class="orbit-eye-wrapper" style="--delay: -8s; --glow-color: #d63384;">
+                        <img src="assets/img/eyes/eye3.png" alt="Creative Vision 3" class="orbit-eye" />
+                    </div>
+                    <div class="orbit-eye-wrapper" style="--delay: -12s; --glow-color: #fd7e14;">
+                        <img src="assets/img/eyes/eye4.png" alt="Creative Vision 4" class="orbit-eye" />
+                    </div>
+
+                </div>
 
             </div>
 
