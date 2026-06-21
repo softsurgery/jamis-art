@@ -34,12 +34,49 @@ $partners = $partnerController->getAll();
     </nav>
 
     <!-- HERO SECTION -->
-    <section class="hero-bg min-h-screen flex items-center py-20 lg:py-0">
+    <section class="hero-bg min-h-screen flex items-center py-20 lg:py-0 relative overflow-hidden">
 
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center w-full">
+        <!-- Orbiting Animation Container (Hero Wide) -->
+        <div class="orbit-container">
+            <!-- Ambient 3D Glowing Rings (No static resist text) -->
+            <div class="orbit-glow-ring ring-1"></div>
+            <div class="orbit-glow-ring ring-2"></div>
+            <div class="orbit-glow-ring ring-3"></div>
+
+            <!-- Orbiting Eyes with color-coded glows and distinct paths -->
+            <!-- Original 4 -->
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-1; animation-duration: 18s; animation-delay: 0s; --glow-color: #ff5e3a;">
+                <img src="assets/img/eyes/eye1.png" alt="Creative Vision 1" class="orbit-eye" />
+            </div>
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-2; animation-duration: 22s; animation-delay: -5s; --glow-color: #00bfff;">
+                <img src="assets/img/eyes/eye2.png" alt="Creative Vision 2" class="orbit-eye" />
+            </div>
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-3; animation-duration: 25s; animation-delay: -12s; --glow-color: #d63384;">
+                <img src="assets/img/eyes/eye3.png" alt="Creative Vision 3" class="orbit-eye" />
+            </div>
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-4; animation-duration: 20s; animation-delay: -8s; --glow-color: #fd7e14;">
+                <img src="assets/img/eyes/eye4.png" alt="Creative Vision 4" class="orbit-eye" />
+            </div>
+
+            <!-- Duplicated 4 (Swarming) -->
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-2; animation-duration: 28s; animation-delay: -15s; animation-direction: reverse; --glow-color: #ff5e3a;">
+                <img src="assets/img/eyes/eye1.png" alt="Creative Vision 1" class="orbit-eye" />
+            </div>
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-3; animation-duration: 19s; animation-delay: -2s; animation-direction: reverse; --glow-color: #00bfff;">
+                <img src="assets/img/eyes/eye2.png" alt="Creative Vision 2" class="orbit-eye" />
+            </div>
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-4; animation-duration: 24s; animation-delay: -18s; animation-direction: reverse; --glow-color: #d63384;">
+                <img src="assets/img/eyes/eye3.png" alt="Creative Vision 3" class="orbit-eye" />
+            </div>
+            <div class="orbit-eye-wrapper" style="animation-name: orbit-path-1; animation-duration: 26s; animation-delay: -10s; animation-direction: reverse; --glow-color: #fd7e14;">
+                <img src="assets/img/eyes/eye4.png" alt="Creative Vision 4" class="orbit-eye" />
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center w-full relative z-10 pointer-events-none">
 
             <!-- LEFT -->
-            <div>
+            <div class="pointer-events-auto">
                 <p class="uppercase tracking-[8px] text-red-500 mb-4">
                     Creative Community
                 </p>
@@ -69,34 +106,9 @@ $partners = $partnerController->getAll();
             </div>
 
             <!-- RIGHT -->
-            <div class="relative flex justify-center items-center mt-12 lg:mt-0">
-
+            <div class="relative flex justify-center items-center mt-12 lg:mt-0 pointer-events-none">
                 <div class="absolute w-72 h-72 bg-red-600 rounded-full blur-[150px] opacity-30 pointer-events-none">
                 </div>
-
-                <!-- Orbiting Animation Container -->
-                <div class="orbit-container">
-                    <!-- Ambient 3D Glowing Rings (No static resist text) -->
-                    <div class="orbit-glow-ring ring-1"></div>
-                    <div class="orbit-glow-ring ring-2"></div>
-                    <div class="orbit-glow-ring ring-3"></div>
-
-                    <!-- Orbiting Eyes with color-coded glows -->
-                    <div class="orbit-eye-wrapper" style="--delay: 0s; --glow-color: #ff5e3a;">
-                        <img src="assets/img/eyes/eye1.png" alt="Creative Vision 1" class="orbit-eye" />
-                    </div>
-                    <div class="orbit-eye-wrapper" style="--delay: -4s; --glow-color: #00bfff;">
-                        <img src="assets/img/eyes/eye2.png" alt="Creative Vision 2" class="orbit-eye" />
-                    </div>
-                    <div class="orbit-eye-wrapper" style="--delay: -8s; --glow-color: #d63384;">
-                        <img src="assets/img/eyes/eye3.png" alt="Creative Vision 3" class="orbit-eye" />
-                    </div>
-                    <div class="orbit-eye-wrapper" style="--delay: -12s; --glow-color: #fd7e14;">
-                        <img src="assets/img/eyes/eye4.png" alt="Creative Vision 4" class="orbit-eye" />
-                    </div>
-
-                </div>
-
             </div>
 
         </div>
