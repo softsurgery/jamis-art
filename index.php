@@ -3,10 +3,17 @@ session_start();
 // require_once "connect.php";
 require_once __DIR__ . "/controllers/AuthController.php";
 require_once __DIR__ . "/controllers/PartnerController.php";
+require_once __DIR__ . "/controllers/EventController.php";
+require_once __DIR__ . "/controllers/ArtTypeController.php";
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $partnerController = new PartnerController();
 $partners = $partnerController->getAll();
+
+$eventController = new EventController();
+$events = $eventController->getAll();
+$artTypeController = new ArtTypeController();
+$artTypes = $artTypeController->getAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -228,6 +235,59 @@ $partners = $partnerController->getAll();
 
             </div>
 
+        </div>
+    </section>
+
+    <!-- EVENTS SECTION -->
+    <section id="events" class="py-28 px-6 relative overflow-hidden bg-black/50">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full blur-[180px] opacity-10 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="text-center mb-16">
+                <p class="uppercase tracking-[6px] text-red-500 mb-3">
+                    Upcoming Actions
+                </p>
+                <h3 class="text-4xl md:text-5xl title-font">
+                    COMMUNITY <span class="gradient-text">EVENTS</span>
+                </h3>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <?php if (empty($events)): ?>
+                    <div class="col-span-full text-center text-gray-500 py-12">
+                        No events scheduled at the moment. Check back soon.
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($events as $event): ?>
+                        <?php 
+                            $coverUrl = !empty($event['coverPath']) ? $event['coverPath'] : 'assets/img/placeholder.jpg'; 
+                            $artType = array_filter($artTypes, fn($a) => $a['id'] == $event['artTypeId']);
+                            $artType = reset($artType);
+                            $colorValue = $artType ? $artType['colorValue'] : '#ffffff';
+                            $label = $artType ? $artType['label'] : 'General';
+                        ?>
+                        <div class="glass rounded-2xl overflow-hidden group cursor-pointer border border-white/5 hover:border-[<?= $colorValue ?>]/30 transition-all duration-500 flex flex-col h-full" style="--event-glow: <?= $colorValue ?>;">
+                            <div class="h-48 overflow-hidden relative">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
+                                <img src="<?= htmlspecialchars($coverUrl) ?>" alt="<?= htmlspecialchars($event['title']) ?>" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                <span class="absolute top-4 right-4 z-20 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full backdrop-blur-md bg-white/10 text-white border border-white/20" style="color: <?= $colorValue ?>;">
+                                    <?= htmlspecialchars($label) ?>
+                                </span>
+                            </div>
+                            <div class="p-6 flex flex-col flex-1 relative">
+                                <div class="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-[<?= $colorValue ?>]/50 to-transparent"></div>
+                                <h4 class="text-xl font-bold mb-3 text-white transition-colors" style="--tw-text-opacity: 1; color: var(--tw-text-opacity) == 1 ? currentColor : currentColor; " onmouseover="this.style.color='<?= $colorValue ?>'" onmouseout="this.style.color=''">
+                                    <?= htmlspecialchars($event['title']) ?>
+                                </h4>
+                                <p class="text-gray-400 text-sm leading-relaxed mb-6 flex-1"><?= htmlspecialchars($event['description']) ?></p>
+                                <div class="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-white/5">
+                                    <span><?= htmlspecialchars(date('M d, Y', strtotime($event['createdAt']))) ?></span>
+                                    <a href="views/landing/event-details.php?id=<?= $event['id'] ?>" class="flex items-center gap-1 hover:text-white transition-colors">Details <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </section>
 
