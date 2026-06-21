@@ -4,6 +4,7 @@ require_once __DIR__ . "/../../controllers/AuthController.php";
 require_once __DIR__ . '/../../controllers/ArticleController.php';
 require_once __DIR__ . '/../../controllers/UserController.php';
 require_once __DIR__ . '/../../controllers/ArtTypeController.php';
+require_once __DIR__ . '/../../controllers/CounterController.php';
 require_once __DIR__ . '/../../lib/mdToHTML.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
@@ -26,6 +27,10 @@ if (!$article) {
 
 $author = $userController->getById($article['authorId']);
 $artType = $artTypeController->getById($article['artTypeId']);
+
+// Increment article view counter
+$counterController = new CounterController();
+$counterController->increment('article', $articleId);
 
 ?>
 
