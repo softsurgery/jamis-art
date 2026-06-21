@@ -5,7 +5,8 @@ $uploadGroupsMap = [
     1 => 'art-type',
     2 => 'articles',
     3 => 'resources',
-    4 => 'profiles'
+    4 => 'profiles',
+    5 => 'partners'
 ];
 $uploadGroupsMapReverse = array_flip($uploadGroupsMap);
 

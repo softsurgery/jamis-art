@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 15, 2026 at 09:31 PM
+-- Generation Time: Jun 21, 2026 at 12:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -80,6 +80,18 @@ CREATE TABLE `location` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `partners`
+--
+
+CREATE TABLE `partners` (
+  `id` int(11) NOT NULL,
+  `label` varchar(255) NOT NULL,
+  `logoId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `resources`
 --
 
@@ -144,7 +156,8 @@ INSERT INTO `upload-group` (`id`, `name`, `parent`) VALUES
 (1, 'art-type', 0),
 (2, 'articles', 0),
 (3, 'resources', 0),
-(5, 'profiles', 0);
+(4, 'profiles', 0),
+(5, 'partners', 0);
 
 -- --------------------------------------------------------
 
@@ -189,6 +202,13 @@ ALTER TABLE `article`
 ALTER TABLE `location`
   ADD PRIMARY KEY (`id`),
   ADD KEY `artTypeId` (`artTypeId`);
+
+--
+-- Indexes for table `partners`
+--
+ALTER TABLE `partners`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `logoId` (`logoId`);
 
 --
 -- Indexes for table `resources`
@@ -251,6 +271,12 @@ ALTER TABLE `location`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `partners`
+--
+ALTER TABLE `partners`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `resources`
 --
 ALTER TABLE `resources`
@@ -303,6 +329,12 @@ ALTER TABLE `article`
 --
 ALTER TABLE `location`
   ADD CONSTRAINT `location_ibfk_1` FOREIGN KEY (`artTypeId`) REFERENCES `art-type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `partners`
+--
+ALTER TABLE `partners`
+  ADD CONSTRAINT `partners_ibfk_1` FOREIGN KEY (`logoId`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `resources`

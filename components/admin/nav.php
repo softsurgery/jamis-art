@@ -56,6 +56,12 @@ function navLayout($name, $path = "", $dark = false)
             "name" => "settings",
             "label" => "Settings",
             "route" => "views/admin/settings.php",
+        ],
+        [
+            "icon" => "users",
+            "name" => "partners",
+            "label" => "Partners",
+            "route" => "views/admin/partners.php",
         ]
     );
 
