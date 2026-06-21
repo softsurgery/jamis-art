@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../connect.php';
 require_once __DIR__ . '/../models/Article.php';
+require_once __DIR__ . '/UserController.php';
+require_once __DIR__ . '/ArtTypeController.php';
+require_once __DIR__ . '/EmailController.php';
 
 class ArticleController
 {
@@ -91,7 +94,44 @@ class ArticleController
                 ':cover' => $article->getCover(),
                 ':artTypeId' => $article->getArtTypeId()
             ]);
-            return $pdo->lastInsertId();
+            $newArticleId = $pdo->lastInsertId();
+
+            // Send Email Notifications
+            try {
+                $userController = new UserController();
+                $artTypeController = new ArtTypeController();
+                $emailController = new EmailController();
+
+                $artType = $artTypeController->getById($article->getArtTypeId());
+                $artTypeLabel = $artType ? $artType->getLabel() : 'this category';
+
+                $usersToNotify = $userController->getByArtTypeId($article->getArtTypeId());
+
+                // Use the configured APP_URL or default to localhost if not set in Env
+                require_once __DIR__ . '/../lib/Env.php';
+                $appUrl = Env::get('APP_URL', 'http://127.0.0.1/jamis-art');
+                $articleUrl = $appUrl . '/views/landing/read-article.php?id=' . $newArticleId;
+
+                foreach ($usersToNotify as $user) {
+                    $emailController->sendTemplateEmail(
+                        $user->getEmail(),
+                        "New Article: " . $article->getTitle(),
+                        'new-article.php',
+                        [
+                            'name' => $user->getFirstName(),
+                            'artTypeLabel' => $artTypeLabel,
+                            'articleTitle' => $article->getTitle(),
+                            'articleDescription' => $article->getDescription(),
+                            'articleUrl' => $articleUrl
+                        ]
+                    );
+                }
+            } catch (Exception $emailEx) {
+                // We catch the exception so that email failure doesn't prevent article creation
+                error_log("Failed to send article notifications: " . $emailEx->getMessage());
+            }
+
+            return $newArticleId;
         } catch (Exception $e) {
             die("Erreur lors de l'enregistrement : " . $e->getMessage());
         }

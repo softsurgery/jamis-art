@@ -115,7 +115,8 @@ CREATE TABLE `support-messages` (
   `message` text NOT NULL,
   `userId` int(11) DEFAULT NULL,
   `email` varchar(255) NOT NULL,
-  `artTypeId` int(11) DEFAULT NULL
+  `artTypeId` int(11) DEFAULT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -227,6 +228,23 @@ ALTER TABLE `support-messages`
   ADD KEY `artTypeId` (`artTypeId`);
 
 --
+-- Table structure for table `counter`
+--
+CREATE TABLE `counter` (
+  `id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `entryId` int(11) NOT NULL,
+  `count` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for table `counter`
+--
+ALTER TABLE `counter`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `type_entry` (`type`, `entryId`);
+
+--
 -- Indexes for table `upload`
 --
 ALTER TABLE `upload`
@@ -286,6 +304,12 @@ ALTER TABLE `resources`
 -- AUTO_INCREMENT for table `support-messages`
 --
 ALTER TABLE `support-messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `counter`
+--
+ALTER TABLE `counter`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

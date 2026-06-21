@@ -153,5 +153,32 @@ class UserController
             die("Erreur lors de la récupération : " . $e->getMessage());
         }
     }
+
+    // ✅ Get users by artTypeId
+    public function getByArtTypeId($artTypeId)
+    {
+        global $pdo;
+        $sql = "SELECT * FROM user WHERE artTypeId = :artTypeId AND active = 1";
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute([':artTypeId' => $artTypeId]);
+            $users = [];
+            while ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+                $users[] = new User(
+                    $data['id'],
+                    $data['firstName'],
+                    $data['lastName'],
+                    $data['email'],
+                    $data['passwordHash'],
+                    $data['active'],
+                    $data['role'],
+                    $data['artTypeId']
+                );
+            }
+            return $users;
+        } catch (Exception $e) {
+            die("Erreur lors de la récupération : " . $e->getMessage());
+        }
+    }
 }
 ?>
