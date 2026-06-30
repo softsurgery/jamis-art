@@ -78,6 +78,10 @@ $artTypes = $artTypeController->getAll();
                                 class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
                                 Discover Locations
                             </button>
+                            <button onclick="redirectToEvents('<?= urlencode($artType['id']) ?>')"
+                                class="px-4 py-2 md:px-6 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors shadow-lg shadow-red-600/30 whitespace-nowrap">
+                                Explore Events
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -92,6 +96,10 @@ $artTypes = $artTypeController->getAll();
 
         function redirectToMap(typeId) {
             window.location.href = `./map.php?type=${encodeURIComponent(typeId)}`;
+        }
+
+        function redirectToEvents(typeId) {
+            window.location.href = `./events.php?type=${encodeURIComponent(typeId)}`;
         }
     </script>
 </body>
